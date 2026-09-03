@@ -459,8 +459,15 @@
     </div>
 
     <!-- EXTRATO -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <div class="section-title" style="margin-bottom:0;">Extrato</div>
+      <button type="button" id="downloadBtn" class="link-btn">⬇ Baixar CSV</button>
+    </div>
     <div class="filter-row" id="filterRow"></div>
     <div class="ledger" id="ledger"></div>
+    <div id="editBar" style="display:none; margin-top:8px;">
+      <button type="button" id="cancelEditBtn" class="btn">Cancelar edição</button>
+    </div>
 
   </div>
 </div>
@@ -488,6 +495,8 @@
   let selectedMethod = "Pix";
   let activeFilter = "Todas";
   let releaseFormOpen = false;
+  let editingExpenseId = null;
+  let editingReleaseId = null;
 
   const $ = (id) => document.getElementById(id);
   const fmt = (n) => "R$ " + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -535,8 +544,29 @@
   $('toggleReleaseForm').addEventListener('click', () => {
     releaseFormOpen = !releaseFormOpen;
     $('releaseForm').classList.toggle('show', releaseFormOpen);
+    if (!releaseFormOpen) cancelReleaseEdit();
     $('toggleReleaseForm').textContent = releaseFormOpen ? "− Fechar" : "+ Lançar liberação (etapa)";
   });
+
+  function startReleaseEdit(r) {
+    editingReleaseId = r.id;
+    $('releaseLabel').value = r.label;
+    $('releaseAmount').value = String(r.amount);
+    $('releaseDate').value = r.date;
+    releaseFormOpen = true;
+    $('releaseForm').classList.add('show');
+    $('toggleReleaseForm').textContent = "− Fechar";
+    $('addReleaseBtn').textContent = "Salvar alterações";
+    $('releaseLabel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelReleaseEdit() {
+    editingReleaseId = null;
+    $('releaseLabel').value = '';
+    $('releaseAmount').value = '';
+    $('releaseDate').value = todayISO();
+    $('addReleaseBtn').textContent = "Registrar liberação";
+  }
 
   $('addReleaseBtn').addEventListener('click', () => {
     const label = $('releaseLabel').value.trim() || "Liberação";
@@ -547,11 +577,15 @@
       return;
     }
     $('releaseAmount').style.borderColor = 'var(--line-strong)';
-    state.releases.push({ id: Date.now(), label, amount, date });
+
+    if (editingReleaseId) {
+      const r = state.releases.find(x => x.id === editingReleaseId);
+      if (r) { r.label = label; r.amount = amount; r.date = date; }
+    } else {
+      state.releases.push({ id: Date.now(), label, amount, date });
+    }
     save();
-    $('releaseLabel').value = '';
-    $('releaseAmount').value = '';
-    $('releaseDate').value = todayISO();
+    cancelReleaseEdit();
     render();
   });
 
@@ -608,6 +642,34 @@
   }
   $('amountInput').addEventListener('input', checkSaldoWarning);
 
+  function startExpenseEdit(e) {
+    editingExpenseId = e.id;
+    $('supplierInput').value = e.supplier;
+    $('catInput').value = e.category;
+    $('amountInput').value = String(e.amount);
+    $('dateInput').value = e.date;
+    setOrigin(e.origin);
+    if (e.origin === 'proprio') setMethod(e.method || 'Pix');
+    $('installmentsInput').value = String(e.installments || 1);
+    updateInstallmentPreview();
+    $('addExpenseBtn').textContent = "Salvar alterações";
+    $('editBar').style.display = 'block';
+    document.querySelector('.section-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelExpenseEdit() {
+    editingExpenseId = null;
+    $('supplierInput').value = '';
+    $('amountInput').value = '';
+    $('dateInput').value = todayISO();
+    $('installmentsInput').value = '1';
+    $('saldoWarn').classList.remove('show');
+    updateInstallmentPreview();
+    $('addExpenseBtn').textContent = "+ Registrar pagamento";
+    $('editBar').style.display = 'none';
+  }
+  $('cancelEditBtn').addEventListener('click', cancelExpenseEdit);
+
   $('addExpenseBtn').addEventListener('click', () => {
     const supplier = $('supplierInput').value.trim();
     const category = $('catInput').value;
@@ -621,25 +683,28 @@
     else { $('amountInput').style.borderColor = 'var(--line-strong)'; }
     if (!ok) return;
 
-    const expense = {
-      id: Date.now(),
-      supplier, category, amount, date,
-      origin: selectedOrigin,
-      method: selectedOrigin === 'proprio' ? selectedMethod : null,
-      installments: (selectedOrigin === 'proprio' && selectedMethod === 'Cartão de crédito')
-        ? (parseInt($('installmentsInput').value, 10) || 1)
-        : null
-    };
-    state.expenses.push(expense);
-    save();
+    const installments = (selectedOrigin === 'proprio' && selectedMethod === 'Cartão de crédito')
+      ? (parseInt($('installmentsInput').value, 10) || 1)
+      : null;
 
-    $('supplierInput').value = '';
-    $('amountInput').value = '';
-    $('dateInput').value = todayISO();
-    $('installmentsInput').value = '1';
-    $('saldoWarn').classList.remove('show');
-    updateInstallmentPreview();
-    $('supplierInput').focus();
+    if (editingExpenseId) {
+      const ex = state.expenses.find(x => x.id === editingExpenseId);
+      if (ex) {
+        ex.supplier = supplier; ex.category = category; ex.amount = amount; ex.date = date;
+        ex.origin = selectedOrigin;
+        ex.method = selectedOrigin === 'proprio' ? selectedMethod : null;
+        ex.installments = installments;
+      }
+    } else {
+      state.expenses.push({
+        id: Date.now(), supplier, category, amount, date,
+        origin: selectedOrigin,
+        method: selectedOrigin === 'proprio' ? selectedMethod : null,
+        installments
+      });
+    }
+    save();
+    cancelExpenseEdit();
     render();
   });
 
@@ -673,7 +738,7 @@
       const sorted = state.releases.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
       relEl.innerHTML = sorted.map(r => {
         const d = r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
-        return `<div class="mini-row">
+        return `<div class="mini-row" data-relrow="${r.id}" style="cursor:pointer;">
           <div class="mini-left">
             <div class="mini-name">${escapeHtml(r.label)}</div>
             <div class="mini-date">${d}</div>
@@ -684,8 +749,17 @@
           </div>
         </div>`;
       }).join('');
+      relEl.querySelectorAll('.mini-row').forEach(row => {
+        row.addEventListener('click', (ev) => {
+          if (ev.target.closest('.mini-del')) return;
+          const r = state.releases.find(x => String(x.id) === row.dataset.relrow);
+          if (r) startReleaseEdit(r);
+        });
+      });
       relEl.querySelectorAll('.mini-del').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          if (editingReleaseId === Number(btn.dataset.relid)) cancelReleaseEdit();
           state.releases = state.releases.filter(r => String(r.id) !== btn.dataset.relid);
           save();
           render();
@@ -748,7 +822,7 @@
           (e.method === 'Cartão de crédito' && e.installments > 1
             ? `Cartão · ${e.installments}x de ${fmt(e.amount / e.installments)}`
             : e.method);
-        return `<div class="ledger-item">
+        return `<div class="ledger-item" data-exprow="${e.id}" style="cursor:pointer;">
           <div style="background:${stripeColor}"></div>
           <div class="ledger-body">
             <div class="ledger-top">
@@ -760,8 +834,17 @@
           <button class="ledger-del" data-id="${e.id}" title="Remover">×</button>
         </div>`;
       }).join('');
+      ledgerEl.querySelectorAll('.ledger-item').forEach(row => {
+        row.addEventListener('click', (ev) => {
+          if (ev.target.closest('.ledger-del')) return;
+          const e = state.expenses.find(x => String(x.id) === row.dataset.exprow);
+          if (e) startExpenseEdit(e);
+        });
+      });
       ledgerEl.querySelectorAll('.ledger-del').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          if (editingExpenseId === Number(btn.dataset.id)) cancelExpenseEdit();
           state.expenses = state.expenses.filter(e => String(e.id) !== btn.dataset.id);
           save();
           render();
@@ -772,6 +855,44 @@
 
   load();
 })();
+
+function downloadCSV() {
+  const data = JSON.parse(localStorage.getItem("obra-data-v2") || "{}");
+  const dataRows = [];
+
+  (data.releases || []).forEach(r => {
+    dataRows.push([r.date || '', 'Liberação', r.label || '', '', 'Financiamento Caixa', '', String(r.amount).replace('.', ',')]);
+  });
+  (data.expenses || []).forEach(e => {
+    const origem = e.origin === 'financiamento' ? 'Financiamento Caixa' : e.method;
+    dataRows.push([
+      e.date || '', 'Pagamento', e.supplier || '', e.category || '', origem || '',
+      e.installments ? String(e.installments) + 'x' : '', String(e.amount).replace('.', ',')
+    ]);
+  });
+
+  dataRows.sort((a, b) => (a[0] || '').localeCompare(b[0] || ''));
+  const rows = [["Data", "Tipo", "Descrição", "Categoria", "Origem/Forma", "Parcelas", "Valor"], ...dataRows];
+
+  const csv = rows.map(row =>
+    row.map(cell => {
+      const s = String(cell ?? '');
+      return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(';')
+  ).join('\r\n');
+
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `controle-obra-lancamentos-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
