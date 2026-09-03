@@ -241,6 +241,8 @@
 
   .stage-field { display: none; }
   .stage-field.show { display: block; }
+  .origin-sub { display: none; }
+  .origin-sub.show { display: block; }
 
   .cat-breakdown {
     border: 2px solid var(--line-strong);
@@ -366,13 +368,27 @@
     <div class="gauge-track"><div id="gaugeFill" class="gauge-fill" style="width:0%"></div></div>
   </div>
 
-  <div class="stats-row" style="grid-template-columns:1fr 1fr;">
-    <div class="stat-block" style="border-left:5px solid var(--caixa);">
-      <div class="stat-label">Financiamento Caixa</div>
-      <div id="caixaValue" class="stat-value">R$ 0</div>
+  <div class="gauge-wrap" style="border-left:5px solid var(--caixa);">
+    <div class="gauge-head">
+      <div class="panel-title" style="border:none;margin:0;padding:0;">Financiamento Caixa</div>
+      <div id="caixaGaugePct" class="gauge-pct">0%</div>
     </div>
+    <div class="row-2" style="margin-bottom:8px;">
+      <div>
+        <label class="field-label">Valor total financiado</label>
+        <input id="caixaBudgetInput" class="budget-edit" style="font-size:17px;" inputmode="decimal" value="0" />
+      </div>
+      <div>
+        <label class="field-label">Já liberado / usado</label>
+        <div id="caixaValue" class="stat-value" style="font-size:17px;">R$ 0</div>
+      </div>
+    </div>
+    <div class="gauge-track"><div id="caixaGaugeFill" class="gauge-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="stats-row" style="grid-template-columns:1fr;">
     <div class="stat-block" style="border-left:5px solid var(--tarp);">
-      <div class="stat-label">Recursos próprios</div>
+      <div class="stat-label">Recursos próprios (Pix, cartão, dinheiro)</div>
       <div id="ownValue" class="stat-value">R$ 0</div>
     </div>
   </div>
@@ -407,8 +423,14 @@
       </div>
       <div class="full">
         <label class="field-label">Origem do pagamento</label>
+        <div class="source-toggle" id="originToggle">
+          <button type="button" data-origin="proprio">Recurso próprio</button>
+          <button type="button" data-origin="financiamento">Financiamento Caixa</button>
+        </div>
+      </div>
+      <div class="full origin-sub" id="ownSourceField">
+        <label class="field-label">Forma de pagamento</label>
         <div class="source-toggle" id="sourceToggle">
-          <button type="button" data-source="Financiamento Caixa">Financ. Caixa</button>
           <button type="button" data-source="Pix">Pix</button>
           <button type="button" data-source="Cartão de crédito">Cartão</button>
           <button type="button" data-source="Dinheiro">Dinheiro</button>
@@ -455,10 +477,11 @@
     "Dinheiro": "#6B6B63"
   };
   const STORAGE_KEY = "obra-data";
-  let state = { projectName: "Minha obra", budget: 0, expenses: [] };
+  let state = { projectName: "Minha obra", budget: 0, caixaBudget: 0, expenses: [] };
   let activeFilter = "Todas";
   let activeSourceFilter = "Todas";
-  let selectedSource = "Financiamento Caixa";
+  let selectedOrigin = "proprio"; // "proprio" | "financiamento"
+  let selectedSource = "Pix";
 
   const $ = (id) => document.getElementById(id);
   const fmt = (n) => "R$ " + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -480,10 +503,27 @@
     }
     $('projectName').value = state.projectName || "Minha obra";
     $('budgetInput').value = state.budget ? String(state.budget) : "0";
+    $('caixaBudgetInput').value = state.caixaBudget ? String(state.caixaBudget) : "0";
     $('dateInput').value = todayISO();
+    setSelectedOrigin(selectedOrigin);
     setSelectedSource(selectedSource);
     render();
   }
+
+  function setSelectedOrigin(origin) {
+    selectedOrigin = origin;
+    document.querySelectorAll('#originToggle button').forEach(btn => {
+      const isActive = btn.dataset.origin === origin;
+      btn.classList.toggle('active', isActive);
+      btn.style.background = isActive ? (origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)') : '#fff';
+    });
+    $('ownSourceField').classList.toggle('show', origin === 'proprio');
+    $('stageField').classList.toggle('show', origin === 'financiamento');
+  }
+
+  document.querySelectorAll('#originToggle button').forEach(btn => {
+    btn.addEventListener('click', () => setSelectedOrigin(btn.dataset.origin));
+  });
 
   function setSelectedSource(src) {
     selectedSource = src;
@@ -492,7 +532,6 @@
       btn.classList.toggle('active', isActive);
       btn.style.background = isActive ? (SOURCES[src] || 'var(--ink)') : '#fff';
     });
-    $('stageField').classList.toggle('show', src === 'Financiamento Caixa');
   }
 
   document.querySelectorAll('#sourceToggle button').forEach(btn => {
@@ -529,6 +568,15 @@
     const ownSpent = spent - caixaSpent;
     $('caixaValue').textContent = fmt(caixaSpent);
     $('ownValue').textContent = fmt(ownSpent);
+
+    const caixaBudget = state.caixaBudget || 0;
+    const caixaPct = caixaBudget > 0 ? Math.min(999, Math.round((caixaSpent / caixaBudget) * 100)) : 0;
+    $('caixaGaugePct').textContent = caixaPct + '%';
+    $('caixaGaugePct').style.color = caixaPct > 100 ? 'var(--brick)' : 'var(--ink)';
+    const caixaFill = $('caixaGaugeFill');
+    caixaFill.style.width = Math.min(100, caixaPct) + '%';
+    caixaFill.className = 'gauge-fill' + (caixaPct > 100 ? ' over-fill' : '');
+    caixaFill.style.background = caixaPct > 100 ? '' : 'repeating-linear-gradient(135deg, var(--caixa), var(--caixa) 8px, #163F73 8px, #163F73 16px)';
 
     $('gaugePct').textContent = pct + '%';
     $('gaugePct').style.color = pct > 100 ? 'var(--brick)' : 'var(--ink)';
@@ -641,6 +689,13 @@
     render();
   });
 
+  $('caixaBudgetInput').addEventListener('change', () => {
+    state.caixaBudget = parseAmount($('caixaBudgetInput').value);
+    $('caixaBudgetInput').value = state.caixaBudget ? String(state.caixaBudget) : "0";
+    save();
+    render();
+  });
+
   $('addBtn').addEventListener('click', () => {
     const desc = $('descInput').value.trim();
     const amount = parseAmount($('amountInput').value);
@@ -655,8 +710,9 @@
     $('descInput').style.borderColor = 'var(--line-strong)';
     $('amountInput').style.borderColor = 'var(--line-strong)';
 
-    const stage = selectedSource === 'Financiamento Caixa' ? $('stageInput').value.trim() : '';
-    state.expenses.push({ id: Date.now(), desc, amount, category, date, source: selectedSource, stage });
+    const finalSource = selectedOrigin === 'financiamento' ? 'Financiamento Caixa' : selectedSource;
+    const stage = selectedOrigin === 'financiamento' ? $('stageInput').value.trim() : '';
+    state.expenses.push({ id: Date.now(), desc, amount, category, date, source: finalSource, stage });
     save();
 
     $('descInput').value = '';
