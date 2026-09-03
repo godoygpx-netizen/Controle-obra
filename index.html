@@ -459,14 +459,19 @@
     </div>
 
     <!-- EXTRATO -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <div class="section-title" style="margin-bottom:0;">Extrato</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" id="extratoHead">
+      <div class="section-title" style="margin-bottom:0; display:flex; align-items:center; gap:6px;">
+        <span id="extratoChevron" style="display:inline-block; transition:transform 0.2s;">▸</span>
+        Extrato <span id="extratoCount" class="num" style="font-weight:400; color:var(--ink-soft); font-size:12.5px;"></span>
+      </div>
       <button type="button" id="downloadBtn" class="link-btn">⬇ Baixar CSV</button>
     </div>
-    <div class="filter-row" id="filterRow"></div>
-    <div class="ledger" id="ledger"></div>
-    <div id="editBar" style="display:none; margin-top:8px;">
-      <button type="button" id="cancelEditBtn" class="btn">Cancelar edição</button>
+    <div id="extratoBody" style="display:none;">
+      <div class="filter-row" id="filterRow"></div>
+      <div class="ledger" id="ledger"></div>
+      <div id="editBar" style="display:none; margin-top:8px;">
+        <button type="button" id="cancelEditBtn" class="btn">Cancelar edição</button>
+      </div>
     </div>
 
   </div>
@@ -713,6 +718,9 @@
   }
 
   function render() {
+    const totalLancamentos = state.releases.length + state.expenses.length;
+    $('extratoCount').textContent = totalLancamentos ? `(${totalLancamentos})` : '';
+
     // ---- financiamento ----
     const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
     const contratado = state.totalContratado || 0;
@@ -892,7 +900,17 @@ function downloadCSV() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+document.getElementById('downloadBtn').addEventListener('click', (ev) => {
+  ev.stopPropagation();
+  downloadCSV();
+});
+
+let extratoOpen = false;
+document.getElementById('extratoHead').addEventListener('click', () => {
+  extratoOpen = !extratoOpen;
+  document.getElementById('extratoBody').style.display = extratoOpen ? 'block' : 'none';
+  document.getElementById('extratoChevron').style.transform = extratoOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
