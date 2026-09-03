@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Obra</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#23262B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #E3E1D8;
+    --panel: #FBFAF6;
+    --ink: #23262B;
+    --ink-soft: #5B5A52;
+    --line: #C9C7BA;
+    --line-strong: #23262B;
+    --amber: #DE9F2E;
+    --brick: #AE4530;
+    --steel: #43607A;
+    --tarp: #5C7A52;
+    --wood: #7A5C43;
+    --stone: #8A8778;
+    --caixa: #1E5AA8;
+    --pix: #2DA89A;
+    --cartao: #7A4B8A;
+    --dinheiro: #6B6B63;
+  }
+
+  * { box-sizing: border-box; }
+
+  #obra-root {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100%;
+    padding: 18px 14px 60px;
+    line-height: 1.4;
+  }
+
+  #obra-root h1, #obra-root h2, #obra-root h3 {
+    font-family: 'Oswald', sans-serif;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .masthead {
+    border: 2px solid var(--line-strong);
+    background: var(--panel);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+
+  .masthead-tag {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+  }
+
+  .masthead-name {
+    font-size: 24px;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    width: 100%;
+    color: var(--ink);
+    padding: 2px 0 0;
+    outline: none;
+  }
+  .masthead-name:focus { border-bottom: 2px solid var(--amber); }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .stat-block {
+    border: 2px solid var(--line-strong);
+    background: var(--panel);
+    padding: 10px 10px 12px;
+  }
+
+  .stat-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Oswald', sans-serif;
+    font-size: 21px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-value.over { color: var(--brick); }
+  .stat-value.under { color: var(--tarp); }
+
+  .budget-edit {
+    font-family: 'Oswald', sans-serif;
+    font-size: 21px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    width: 100%;
+    color: var(--ink);
+    outline: none;
+    padding: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gauge-wrap {
+    border: 2px solid var(--line-strong);
+    background: var(--panel);
+    padding: 12px 14px 14px;
+    margin-bottom: 14px;
+  }
+
+  .gauge-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .gauge-pct {
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .gauge-track {
+    height: 14px;
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gauge-fill {
+    height: 100%;
+    background: repeating-linear-gradient(135deg, var(--amber), var(--amber) 8px, #C98E27 8px, #C98E27 16px);
+    transition: width 0.4s ease;
+  }
+  .gauge-fill.over-fill {
+    background: repeating-linear-gradient(135deg, var(--brick), var(--brick) 8px, #92392A 8px, #92392A 16px);
+  }
+
+  .panel-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .add-form {
+    border: 2px solid var(--line-strong);
+    background: var(--panel);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .field-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .obra-input, .obra-select {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 8px 9px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+  }
+  .obra-input:focus, .obra-select:focus { border-color: var(--amber); border-width: 2px; padding: 7px 8px; }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .add-btn {
+    margin-top: 4px;
+    width: 100%;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 11px;
+    cursor: pointer;
+  }
+  .add-btn:active { background: var(--amber); color: var(--ink); }
+
+  .source-toggle {
+    display: flex;
+    border: 1px solid var(--line-strong);
+    margin-top: 2px;
+  }
+  .source-toggle button {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 4px;
+    border: none;
+    border-right: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .source-toggle button:last-child { border-right: none; }
+  .source-toggle button.active { color: #fff; }
+
+  .stage-field { display: none; }
+  .stage-field.show { display: block; }
+
+  .cat-breakdown {
+    border: 2px solid var(--line-strong);
+    background: var(--panel);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .cat-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 64px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+    font-size: 12.5px;
+  }
+  .cat-row:last-child { margin-bottom: 0; }
+
+  .cat-chip {
+    width: 9px; height: 9px;
+    display: inline-block;
+    margin-right: 5px;
+    flex-shrink: 0;
+  }
+  .cat-name { display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .cat-bar-track { height: 8px; background: var(--bg); border: 1px solid var(--line); }
+  .cat-bar-fill { height: 100%; }
+
+  .cat-amt { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+  .filter-chip {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 11px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .filter-chip.active { background: var(--ink); color: #fff; }
+
+  .ledger { border: 2px solid var(--line-strong); background: var(--panel); }
+
+  .ledger-empty {
+    padding: 30px 16px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+  }
+
+  .ledger-item {
+    display: grid;
+    grid-template-columns: 3px 1fr auto;
+    border-bottom: 1px solid var(--line);
+  }
+  .ledger-item:last-child { border-bottom: none; }
+
+  .ledger-stripe { }
+
+  .ledger-body { padding: 10px 12px; min-width: 0; }
+  .ledger-top { display: flex; justify-content: space-between; gap: 8px; }
+  .ledger-desc { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ledger-amt { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ledger-meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .ledger-del {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 17px;
+    cursor: pointer;
+    padding: 8px 12px;
+    line-height: 1;
+  }
+  .ledger-del:hover { color: var(--brick); }
+
+  @media (min-width: 640px) {
+    #obra-root { padding: 26px 30px 70px; max-width: 760px; margin: 0 auto; }
+    .form-grid { grid-template-columns: 2fr 1fr 1fr; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .row-2.full-row { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="obra-root">
+  <div class="masthead">
+    <div class="masthead-tag">Controle de obra</div>
+    <input id="projectName" class="masthead-name" value="Minha obra" maxlength="40" />
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-block">
+      <div class="stat-label">Orçamento</div>
+      <input id="budgetInput" class="budget-edit" inputmode="decimal" value="0" />
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Gasto</div>
+      <div id="spentValue" class="stat-value">R$ 0</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Saldo</div>
+      <div id="balanceValue" class="stat-value">R$ 0</div>
+    </div>
+  </div>
+
+  <div class="gauge-wrap">
+    <div class="gauge-head">
+      <div class="panel-title" style="border:none;margin:0;padding:0;">Uso do orçamento</div>
+      <div id="gaugePct" class="gauge-pct">0%</div>
+    </div>
+    <div class="gauge-track"><div id="gaugeFill" class="gauge-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="stats-row" style="grid-template-columns:1fr 1fr;">
+    <div class="stat-block" style="border-left:5px solid var(--caixa);">
+      <div class="stat-label">Financiamento Caixa</div>
+      <div id="caixaValue" class="stat-value">R$ 0</div>
+    </div>
+    <div class="stat-block" style="border-left:5px solid var(--tarp);">
+      <div class="stat-label">Recursos próprios</div>
+      <div id="ownValue" class="stat-value">R$ 0</div>
+    </div>
+  </div>
+
+  <div class="add-form">
+    <div class="panel-title">Lançar gasto</div>
+    <div class="form-grid">
+      <div class="full">
+        <label class="field-label">Descrição</label>
+        <input id="descInput" class="obra-input" placeholder="Ex: Cimento CP-II 50kg" />
+      </div>
+      <div class="row-2 full-row">
+        <div>
+          <label class="field-label">Categoria</label>
+          <select id="catInput" class="obra-select">
+            <option value="Materiais">Materiais</option>
+            <option value="Mão de obra">Mão de obra</option>
+            <option value="Equipamentos">Equipamentos</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Licenças/Taxas">Licenças/Taxas</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Valor (R$)</label>
+          <input id="amountInput" class="obra-input" inputmode="decimal" placeholder="0,00" />
+        </div>
+        <div>
+          <label class="field-label">Data</label>
+          <input id="dateInput" class="obra-input" type="date" />
+        </div>
+      </div>
+      <div class="full">
+        <label class="field-label">Origem do pagamento</label>
+        <div class="source-toggle" id="sourceToggle">
+          <button type="button" data-source="Financiamento Caixa">Financ. Caixa</button>
+          <button type="button" data-source="Pix">Pix</button>
+          <button type="button" data-source="Cartão de crédito">Cartão</button>
+          <button type="button" data-source="Dinheiro">Dinheiro</button>
+        </div>
+      </div>
+      <div class="full stage-field" id="stageField">
+        <label class="field-label">Etapa do financiamento (opcional)</label>
+        <input id="stageInput" class="obra-input" placeholder="Ex: 2ª medição" />
+      </div>
+    </div>
+    <button id="addBtn" class="add-btn">+ Adicionar gasto</button>
+  </div>
+
+  <div id="catBreakdown" class="cat-breakdown" style="display:none;">
+    <div class="panel-title">Por categoria</div>
+    <div id="catRows"></div>
+  </div>
+
+  <div id="sourceBreakdown" class="cat-breakdown" style="display:none;">
+    <div class="panel-title">Por origem</div>
+    <div id="sourceRows"></div>
+  </div>
+
+  <div class="filter-row" id="filterRow"></div>
+  <div class="filter-row" id="sourceFilterRow"></div>
+
+  <div class="ledger" id="ledger"></div>
+</div>
+
+<script>
+(function () {
+  const CATS = {
+    "Materiais": "#43607A",
+    "Mão de obra": "#AE4530",
+    "Equipamentos": "#DE9F2E",
+    "Transporte": "#5C7A52",
+    "Licenças/Taxas": "#7A5C43",
+    "Outros": "#8A8778"
+  };
+  const SOURCES = {
+    "Financiamento Caixa": "#1E5AA8",
+    "Pix": "#2DA89A",
+    "Cartão de crédito": "#7A4B8A",
+    "Dinheiro": "#6B6B63"
+  };
+  const STORAGE_KEY = "obra-data";
+  let state = { projectName: "Minha obra", budget: 0, expenses: [] };
+  let activeFilter = "Todas";
+  let activeSourceFilter = "Todas";
+  let selectedSource = "Financiamento Caixa";
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => "R$ " + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  function todayISO() {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  }
+
+  async function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        state = Object.assign(state, parsed);
+      }
+    } catch (e) {
+      // no data yet
+    }
+    $('projectName').value = state.projectName || "Minha obra";
+    $('budgetInput').value = state.budget ? String(state.budget) : "0";
+    $('dateInput').value = todayISO();
+    setSelectedSource(selectedSource);
+    render();
+  }
+
+  function setSelectedSource(src) {
+    selectedSource = src;
+    document.querySelectorAll('#sourceToggle button').forEach(btn => {
+      const isActive = btn.dataset.source === src;
+      btn.classList.toggle('active', isActive);
+      btn.style.background = isActive ? (SOURCES[src] || 'var(--ink)') : '#fff';
+    });
+    $('stageField').classList.toggle('show', src === 'Financiamento Caixa');
+  }
+
+  document.querySelectorAll('#sourceToggle button').forEach(btn => {
+    btn.addEventListener('click', () => setSelectedSource(btn.dataset.source));
+  });
+
+  async function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error("Falha ao salvar", e);
+    }
+  }
+
+  function parseAmount(v) {
+    if (!v) return 0;
+    v = String(v).replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, '');
+    const n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function render() {
+    const spent = state.expenses.reduce((s, e) => s + e.amount, 0);
+    const budget = state.budget || 0;
+    const balance = budget - spent;
+    const pct = budget > 0 ? Math.min(999, Math.round((spent / budget) * 100)) : 0;
+
+    $('spentValue').textContent = fmt(spent);
+    const balEl = $('balanceValue');
+    balEl.textContent = fmt(balance);
+    balEl.className = 'stat-value ' + (balance < 0 ? 'over' : balance > 0 ? 'under' : '');
+
+    const caixaSpent = state.expenses.filter(e => e.source === "Financiamento Caixa").reduce((s, e) => s + e.amount, 0);
+    const ownSpent = spent - caixaSpent;
+    $('caixaValue').textContent = fmt(caixaSpent);
+    $('ownValue').textContent = fmt(ownSpent);
+
+    $('gaugePct').textContent = pct + '%';
+    $('gaugePct').style.color = pct > 100 ? 'var(--brick)' : 'var(--ink)';
+    const fill = $('gaugeFill');
+    fill.style.width = Math.min(100, pct) + '%';
+    fill.className = 'gauge-fill' + (pct > 100 ? ' over-fill' : '');
+
+    // category breakdown
+    const byCat = {};
+    state.expenses.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + e.amount; });
+    const catKeys = Object.keys(byCat).sort((a, b) => byCat[b] - byCat[a]);
+    const bkEl = $('catBreakdown');
+    if (catKeys.length === 0) {
+      bkEl.style.display = 'none';
+    } else {
+      bkEl.style.display = '';
+      const max = Math.max(...catKeys.map(k => byCat[k]));
+      $('catRows').innerHTML = catKeys.map(k => `
+        <div class="cat-row">
+          <div class="cat-name"><span class="cat-chip" style="background:${CATS[k] || '#999'}"></span>${k}</div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(byCat[k]/max*100)}%;background:${CATS[k] || '#999'}"></div></div>
+          <div class="cat-amt">${fmt(byCat[k])}</div>
+        </div>`).join('');
+    }
+
+    // source breakdown
+    const bySrc = {};
+    state.expenses.forEach(e => { bySrc[e.source] = (bySrc[e.source] || 0) + e.amount; });
+    const srcKeys = Object.keys(bySrc).sort((a, b) => bySrc[b] - bySrc[a]);
+    const srcEl = $('sourceBreakdown');
+    if (srcKeys.length === 0) {
+      srcEl.style.display = 'none';
+    } else {
+      srcEl.style.display = '';
+      const maxSrc = Math.max(...srcKeys.map(k => bySrc[k]));
+      $('sourceRows').innerHTML = srcKeys.map(k => `
+        <div class="cat-row">
+          <div class="cat-name"><span class="cat-chip" style="background:${SOURCES[k] || '#999'}"></span>${k}</div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(bySrc[k]/maxSrc*100)}%;background:${SOURCES[k] || '#999'}"></div></div>
+          <div class="cat-amt">${fmt(bySrc[k])}</div>
+        </div>`).join('');
+    }
+
+    // filter chips
+    const filters = ["Todas", ...Object.keys(CATS).filter(c => state.expenses.some(e => e.category === c))];
+    $('filterRow').innerHTML = filters.map(f =>
+      `<button class="filter-chip ${f === activeFilter ? 'active' : ''}" data-filter="${f}">${f}</button>`
+    ).join('');
+    $('filterRow').querySelectorAll('.filter-chip').forEach(btn => {
+      btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; render(); });
+    });
+
+    const sourceFilters = ["Todas", ...Object.keys(SOURCES).filter(s => state.expenses.some(e => e.source === s))];
+    $('sourceFilterRow').innerHTML = sourceFilters.map(f =>
+      `<button class="filter-chip ${f === activeSourceFilter ? 'active' : ''}" data-sfilter="${f}">${f}</button>`
+    ).join('');
+    $('sourceFilterRow').querySelectorAll('.filter-chip').forEach(btn => {
+      btn.addEventListener('click', () => { activeSourceFilter = btn.dataset.sfilter; render(); });
+    });
+
+    // ledger
+    const list = state.expenses
+      .filter(e => activeFilter === "Todas" || e.category === activeFilter)
+      .filter(e => activeSourceFilter === "Todas" || e.source === activeSourceFilter)
+      .slice()
+      .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
+
+    const ledgerEl = $('ledger');
+    if (list.length === 0) {
+      ledgerEl.innerHTML = '<div class="ledger-empty">Nenhum gasto lançado ainda. Adicione o primeiro acima.</div>';
+    } else {
+      ledgerEl.innerHTML = list.map(e => {
+        const dateStr = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+        return `
+        <div class="ledger-item">
+          <div class="ledger-stripe" style="background:${CATS[e.category] || '#999'}"></div>
+          <div class="ledger-body">
+            <div class="ledger-top">
+              <div class="ledger-desc">${escapeHtml(e.desc)}</div>
+              <div class="ledger-amt">${fmt(e.amount)}</div>
+            </div>
+            <div class="ledger-meta"><span>${e.category}</span><span>${dateStr}</span><span>${e.source}${e.stage ? ' · ' + escapeHtml(e.stage) : ''}</span></div>
+          </div>
+          <button class="ledger-del" data-id="${e.id}" title="Remover">×</button>
+        </div>`;
+      }).join('');
+      ledgerEl.querySelectorAll('.ledger-del').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.expenses = state.expenses.filter(e => String(e.id) !== btn.dataset.id);
+          save();
+          render();
+        });
+      });
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  $('projectName').addEventListener('change', () => {
+    state.projectName = $('projectName').value || "Minha obra";
+    save();
+  });
+
+  $('budgetInput').addEventListener('change', () => {
+    state.budget = parseAmount($('budgetInput').value);
+    $('budgetInput').value = state.budget ? String(state.budget) : "0";
+    save();
+    render();
+  });
+
+  $('addBtn').addEventListener('click', () => {
+    const desc = $('descInput').value.trim();
+    const amount = parseAmount($('amountInput').value);
+    const category = $('catInput').value;
+    const date = $('dateInput').value || todayISO();
+
+    if (!desc || amount <= 0) {
+      $('descInput').style.borderColor = !desc ? 'var(--brick)' : 'var(--line-strong)';
+      $('amountInput').style.borderColor = amount <= 0 ? 'var(--brick)' : 'var(--line-strong)';
+      return;
+    }
+    $('descInput').style.borderColor = 'var(--line-strong)';
+    $('amountInput').style.borderColor = 'var(--line-strong)';
+
+    const stage = selectedSource === 'Financiamento Caixa' ? $('stageInput').value.trim() : '';
+    state.expenses.push({ id: Date.now(), desc, amount, category, date, source: selectedSource, stage });
+    save();
+
+    $('descInput').value = '';
+    $('amountInput').value = '';
+    $('dateInput').value = todayISO();
+    $('stageInput').value = '';
+    $('descInput').focus();
+
+    render();
+  });
+
+  $('descInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('addBtn').click(); });
+  $('amountInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('addBtn').click(); });
+
+  load();
+})();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
