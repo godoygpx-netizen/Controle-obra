@@ -7,190 +7,180 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#23262B">
+<meta name="theme-color" content="#182230">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap');
 
   :root {
-    --bg: #E3E1D8;
-    --panel: #FBFAF6;
-    --ink: #23262B;
-    --ink-soft: #5B5A52;
-    --line: #C9C7BA;
-    --line-strong: #23262B;
+    --bg: #EBEDF0;
+    --panel: #FFFFFF;
+    --ink: #1C2530;
+    --ink-soft: #5C6B7A;
+    --line: #CCD3DA;
+    --line-strong: #1C2530;
     --amber: #DE9F2E;
+    --amber-deep: #B9821F;
     --brick: #AE4530;
-    --steel: #43607A;
-    --tarp: #5C7A52;
-    --wood: #7A5C43;
-    --stone: #8A8778;
     --caixa: #1E5AA8;
-    --pix: #2DA89A;
-    --cartao: #7A4B8A;
-    --dinheiro: #6B6B63;
+    --caixa-deep: #143E7A;
+    --tarp: #3F7A57;
+    --tarp-deep: #2E5C41;
   }
 
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   #obra-root {
     font-family: 'Inter', sans-serif;
     background: var(--bg);
     color: var(--ink);
     min-height: 100%;
-    padding: 18px 14px 60px;
+    padding-bottom: 60px;
     line-height: 1.4;
   }
 
   #obra-root h1, #obra-root h2, #obra-root h3 {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     margin: 0;
-    letter-spacing: 0.01em;
   }
 
+  .num { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- masthead ---------- */
   .masthead {
-    border: 2px solid var(--line-strong);
-    background: var(--panel);
-    padding: 14px 16px;
-    margin-bottom: 14px;
+    background:
+      linear-gradient(180deg, rgba(24,34,48,0.94), rgba(24,34,48,0.98)),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 24px);
+    color: #EDEFF2;
+    padding: 20px 16px 22px;
   }
-
   .masthead-tag {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--ink-soft);
+    letter-spacing: 0.16em;
+    color: #9FB0C2;
   }
-
   .masthead-name {
-    font-size: 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 25px;
     font-weight: 600;
     background: transparent;
     border: none;
     width: 100%;
-    color: var(--ink);
-    padding: 2px 0 0;
+    color: #fff;
+    padding: 3px 0 0;
     outline: none;
   }
   .masthead-name:focus { border-bottom: 2px solid var(--amber); }
+  .masthead-sub { font-size: 12.5px; color: #B7C3D1; margin-top: 4px; }
 
-  .stats-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
+  .wrap { padding: 14px 14px 0; }
 
-  .stat-block {
-    border: 2px solid var(--line-strong);
+  /* ---------- section cards ---------- */
+  .card {
     background: var(--panel);
-    padding: 10px 10px 12px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    margin-bottom: 12px;
+    padding: 14px 15px;
   }
+  .card.tone-caixa { border-left-color: var(--caixa); }
+  .card.tone-tarp { border-left-color: var(--tarp); }
 
-  .stat-label {
-    font-size: 10.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--ink-soft);
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 14.5px;
     font-weight: 600;
-    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
   }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot.caixa { background: var(--caixa); }
+  .dot.tarp { background: var(--tarp); }
 
-  .stat-value {
-    font-family: 'Oswald', sans-serif;
-    font-size: 21px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
+  .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .kpi { }
+  .kpi-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); font-weight: 600; margin-bottom: 3px; }
+  .kpi-value { font-size: 19px; font-weight: 600; }
+  .kpi-value.danger { color: var(--brick); }
+  .kpi-value.ok { color: var(--tarp); }
 
-  .stat-value.over { color: var(--brick); }
-  .stat-value.under { color: var(--tarp); }
-
-  .budget-edit {
-    font-family: 'Oswald', sans-serif;
-    font-size: 21px;
+  .edit-inline {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 19px;
     font-weight: 600;
     border: none;
+    border-bottom: 1px dashed var(--line);
     background: transparent;
     width: 100%;
     color: var(--ink);
     outline: none;
-    padding: 0;
-    font-variant-numeric: tabular-nums;
+    padding: 0 0 2px;
   }
+  .edit-inline:focus { border-bottom: 1px solid var(--amber); }
 
-  .gauge-wrap {
-    border: 2px solid var(--line-strong);
-    background: var(--panel);
-    padding: 12px 14px 14px;
-    margin-bottom: 14px;
-  }
+  .track { height: 10px; background: var(--bg); border: 1px solid var(--line-strong); overflow: hidden; }
+  .fill { height: 100%; transition: width 0.35s ease; }
+  .fill.caixa { background: repeating-linear-gradient(135deg, var(--caixa), var(--caixa) 7px, var(--caixa-deep) 7px, var(--caixa-deep) 14px); }
+  .fill.tarp { background: repeating-linear-gradient(135deg, var(--tarp), var(--tarp) 7px, var(--tarp-deep) 7px, var(--tarp-deep) 14px); }
+  .fill.over { background: repeating-linear-gradient(135deg, var(--brick), var(--brick) 7px, #7E2F1E 7px, #7E2F1E 14px); }
+  .track-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
 
-  .gauge-head {
+  /* mini release ledger inside financing card */
+  .mini-list { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+  .mini-empty { font-size: 12.5px; color: var(--ink-soft); padding: 4px 0; }
+  .mini-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 8px;
-  }
-
-  .gauge-pct {
-    font-family: 'Oswald', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .gauge-track {
-    height: 14px;
-    background: var(--bg);
-    border: 1px solid var(--line-strong);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .gauge-fill {
-    height: 100%;
-    background: repeating-linear-gradient(135deg, var(--amber), var(--amber) 8px, #C98E27 8px, #C98E27 16px);
-    transition: width 0.4s ease;
-  }
-  .gauge-fill.over-fill {
-    background: repeating-linear-gradient(135deg, var(--brick), var(--brick) 8px, #92392A 8px, #92392A 16px);
-  }
-
-  .panel-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px dashed var(--line);
-  }
-
-  .add-form {
-    border: 2px solid var(--line-strong);
-    background: var(--panel);
-    padding: 14px;
-    margin-bottom: 14px;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--bg);
+    font-size: 13px;
     gap: 8px;
   }
+  .mini-row:last-child { border-bottom: none; }
+  .mini-row .mini-left { min-width: 0; }
+  .mini-row .mini-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-row .mini-date { font-size: 11px; color: var(--ink-soft); }
+  .mini-row .mini-amt { font-weight: 600; white-space: nowrap; }
+  .mini-del { background: none; border: none; color: var(--ink-soft); font-size: 15px; padding: 0 0 0 8px; cursor: pointer; }
+  .mini-del:hover { color: var(--brick); }
+
+  .link-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--caixa);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .add-release-form { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .add-release-form.show { display: block; }
+  .release-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 
   .field-label {
     font-size: 10.5px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.07em;
     color: var(--ink-soft);
     font-weight: 600;
     display: block;
     margin-bottom: 3px;
   }
-
-  .obra-input, .obra-select {
+  .f-input, .f-select {
     width: 100%;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -200,31 +190,49 @@
     color: var(--ink);
     outline: none;
   }
-  .obra-input:focus, .obra-select:focus { border-color: var(--amber); border-width: 2px; padding: 7px 8px; }
+  .f-input:focus, .f-select:focus { border-color: var(--amber); border-width: 2px; padding: 7px 8px; }
 
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-  .add-btn {
-    margin-top: 4px;
-    width: 100%;
-    background: var(--ink);
-    color: #fff;
-    border: none;
-    font-family: 'Oswald', sans-serif;
-    font-size: 14px;
+  .btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13.5px;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    padding: 11px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    padding: 9px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-primary:active { background: var(--amber); border-color: var(--amber); color: var(--ink); }
+
+  /* ---------- payment form ---------- */
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  .toggle-2 { display: flex; border: 1px solid var(--line-strong); }
+  .toggle-2 button {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 10px 4px;
+    border: none;
+    border-right: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
     cursor: pointer;
   }
-  .add-btn:active { background: var(--amber); color: var(--ink); }
+  .toggle-2 button:last-child { border-right: none; }
 
-  .source-toggle {
-    display: flex;
-    border: 1px solid var(--line-strong);
-    margin-top: 2px;
-  }
-  .source-toggle button {
+  .toggle-3 { display: flex; border: 1px solid var(--line-strong); }
+  .toggle-3 button {
     flex: 1;
     font-family: 'Inter', sans-serif;
     font-size: 12px;
@@ -236,315 +244,254 @@
     color: var(--ink);
     cursor: pointer;
   }
-  .source-toggle button:last-child { border-right: none; }
-  .source-toggle button.active { color: #fff; }
+  .toggle-3 button:last-child { border-right: none; }
 
-  .stage-field { display: none; }
-  .stage-field.show { display: block; }
-  .origin-sub { display: none; }
-  .origin-sub.show { display: block; }
+  .sub-block { display: none; }
+  .sub-block.show { display: block; }
 
-  .cat-breakdown {
-    border: 2px solid var(--line-strong);
-    background: var(--panel);
-    padding: 14px;
-    margin-bottom: 14px;
+  .warn-note {
+    font-size: 11.5px;
+    color: var(--brick);
+    margin-top: 6px;
+    display: none;
   }
+  .warn-note.show { display: block; }
 
-  .cat-row {
-    display: grid;
-    grid-template-columns: 90px 1fr 64px;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 7px;
-    font-size: 12.5px;
-  }
+  /* ---------- category breakdown ---------- */
+  .cat-row { display: grid; grid-template-columns: 92px 1fr 66px; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12.5px; }
   .cat-row:last-child { margin-bottom: 0; }
-
-  .cat-chip {
-    width: 9px; height: 9px;
-    display: inline-block;
-    margin-right: 5px;
-    flex-shrink: 0;
-  }
+  .cat-chip { width: 9px; height: 9px; display: inline-block; margin-right: 5px; flex-shrink: 0; }
   .cat-name { display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
   .cat-bar-track { height: 8px; background: var(--bg); border: 1px solid var(--line); }
   .cat-bar-fill { height: 100%; }
+  .cat-amt { text-align: right; font-weight: 500; }
 
-  .cat-amt { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
-
-  .filter-row {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    margin-bottom: 10px;
-  }
+  /* ---------- ledger ---------- */
+  .filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; -ms-overflow-style: none; scrollbar-width: none; }
+  .filter-row::-webkit-scrollbar { display: none; }
   .filter-chip {
     flex-shrink: 0;
     font-size: 12px;
     font-weight: 500;
     padding: 6px 11px;
     border: 1px solid var(--line-strong);
-    background: var(--panel);
+    background: #fff;
     color: var(--ink);
     cursor: pointer;
     white-space: nowrap;
   }
   .filter-chip.active { background: var(--ink); color: #fff; }
 
-  .ledger { border: 2px solid var(--line-strong); background: var(--panel); }
-
-  .ledger-empty {
-    padding: 30px 16px;
-    text-align: center;
-    color: var(--ink-soft);
-    font-size: 13.5px;
-  }
-
-  .ledger-item {
-    display: grid;
-    grid-template-columns: 3px 1fr auto;
-    border-bottom: 1px solid var(--line);
-  }
+  .ledger { border: 1px solid var(--line); background: var(--panel); }
+  .ledger-empty { padding: 26px 16px; text-align: center; color: var(--ink-soft); font-size: 13.5px; }
+  .ledger-item { display: grid; grid-template-columns: 3px 1fr auto; border-bottom: 1px solid var(--bg); }
   .ledger-item:last-child { border-bottom: none; }
-
-  .ledger-stripe { }
-
   .ledger-body { padding: 10px 12px; min-width: 0; }
   .ledger-top { display: flex; justify-content: space-between; gap: 8px; }
   .ledger-desc { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .ledger-amt { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 14.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ledger-amt { font-weight: 600; font-size: 14px; white-space: nowrap; }
   .ledger-meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
-
-  .ledger-del {
-    background: none;
-    border: none;
-    color: var(--ink-soft);
-    font-size: 17px;
-    cursor: pointer;
-    padding: 8px 12px;
-    line-height: 1;
-  }
+  .ledger-del { background: none; border: none; color: var(--ink-soft); font-size: 17px; cursor: pointer; padding: 8px 12px; line-height: 1; }
   .ledger-del:hover { color: var(--brick); }
 
   @media (min-width: 640px) {
-    #obra-root { padding: 26px 30px 70px; max-width: 760px; margin: 0 auto; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 18px 24px 0; }
+    .masthead { padding: 26px 24px; }
     .form-grid { grid-template-columns: 2fr 1fr 1fr; }
     .form-grid .full { grid-column: 1 / -1; }
-    .row-2.full-row { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; }
+    .row-3.full-row { grid-column: 1 / -1; }
   }
 </style>
 </head>
 <body>
 
 <div id="obra-root">
+
   <div class="masthead">
     <div class="masthead-tag">Controle de obra</div>
     <input id="projectName" class="masthead-name" value="Minha obra" maxlength="40" />
+    <div class="masthead-sub">Financiamento Caixa + recursos próprios</div>
   </div>
 
-  <div class="stats-row">
-    <div class="stat-block">
-      <div class="stat-label">Orçamento</div>
-      <input id="budgetInput" class="budget-edit" inputmode="decimal" value="0" />
-    </div>
-    <div class="stat-block">
-      <div class="stat-label">Gasto</div>
-      <div id="spentValue" class="stat-value">R$ 0</div>
-    </div>
-    <div class="stat-block">
-      <div class="stat-label">Saldo</div>
-      <div id="balanceValue" class="stat-value">R$ 0</div>
-    </div>
-  </div>
+  <div class="wrap">
 
-  <div class="gauge-wrap">
-    <div class="gauge-head">
-      <div class="panel-title" style="border:none;margin:0;padding:0;">Uso do orçamento</div>
-      <div id="gaugePct" class="gauge-pct">0%</div>
-    </div>
-    <div class="gauge-track"><div id="gaugeFill" class="gauge-fill" style="width:0%"></div></div>
-  </div>
-
-  <div class="gauge-wrap" style="border-left:5px solid var(--caixa);">
-    <div class="gauge-head">
-      <div class="panel-title" style="border:none;margin:0;padding:0;">Financiamento Caixa</div>
-      <div id="caixaGaugePct" class="gauge-pct">0%</div>
-    </div>
-    <div class="row-2" style="margin-bottom:8px;">
-      <div>
-        <label class="field-label">Valor total financiado</label>
-        <input id="caixaBudgetInput" class="budget-edit" style="font-size:17px;" inputmode="decimal" value="0" />
+    <!-- FINANCIAMENTO -->
+    <div class="card tone-caixa">
+      <div class="card-head">
+        <div class="card-title"><span class="dot caixa"></span>Financiamento Caixa</div>
       </div>
-      <div>
-        <label class="field-label">Já liberado / usado</label>
-        <div id="caixaValue" class="stat-value" style="font-size:17px;">R$ 0</div>
-      </div>
-    </div>
-    <div class="gauge-track"><div id="caixaGaugeFill" class="gauge-fill" style="width:0%"></div></div>
-  </div>
 
-  <div class="stats-row" style="grid-template-columns:1fr;">
-    <div class="stat-block" style="border-left:5px solid var(--tarp);">
-      <div class="stat-label">Recursos próprios (Pix, cartão, dinheiro)</div>
-      <div id="ownValue" class="stat-value">R$ 0</div>
-    </div>
-  </div>
-
-  <div class="add-form">
-    <div class="panel-title">Lançar gasto</div>
-    <div class="form-grid">
-      <div class="full">
-        <label class="field-label">Descrição</label>
-        <input id="descInput" class="obra-input" placeholder="Ex: Cimento CP-II 50kg" />
-      </div>
-      <div class="row-2 full-row">
-        <div>
-          <label class="field-label">Categoria</label>
-          <select id="catInput" class="obra-select">
-            <option value="Materiais">Materiais</option>
-            <option value="Mão de obra">Mão de obra</option>
-            <option value="Equipamentos">Equipamentos</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Licenças/Taxas">Licenças/Taxas</option>
-            <option value="Outros">Outros</option>
-          </select>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Valor total contratado</div>
+          <input id="totalContratado" class="edit-inline" inputmode="decimal" value="0" />
         </div>
-        <div>
-          <label class="field-label">Valor (R$)</label>
-          <input id="amountInput" class="obra-input" inputmode="decimal" placeholder="0,00" />
-        </div>
-        <div>
-          <label class="field-label">Data</label>
-          <input id="dateInput" class="obra-input" type="date" />
+        <div class="kpi">
+          <div class="kpi-label">Liberado até agora</div>
+          <div id="totalLiberado" class="kpi-value num">R$ 0</div>
         </div>
       </div>
-      <div class="full">
-        <label class="field-label">Origem do pagamento</label>
-        <div class="source-toggle" id="originToggle">
-          <button type="button" data-origin="proprio">Recurso próprio</button>
-          <button type="button" data-origin="financiamento">Financiamento Caixa</button>
+      <div class="track"><div id="contratadoFill" class="fill caixa" style="width:0%"></div></div>
+      <div class="track-label"><span id="contratadoPct">0% liberado</span><span id="contratadoRestante">Falta liberar R$ 0</span></div>
+
+      <div class="kpi-row" style="margin-top:14px;">
+        <div class="kpi">
+          <div class="kpi-label">Pago a fornecedores</div>
+          <div id="totalPagoFinanc" class="kpi-value num">R$ 0</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Saldo disponível</div>
+          <div id="saldoFinanc" class="kpi-value num">R$ 0</div>
         </div>
       </div>
-      <div class="full origin-sub" id="ownSourceField">
-        <label class="field-label">Forma de pagamento</label>
-        <div class="source-toggle" id="sourceToggle">
-          <button type="button" data-source="Pix">Pix</button>
-          <button type="button" data-source="Cartão de crédito">Cartão</button>
-          <button type="button" data-source="Dinheiro">Dinheiro</button>
+
+      <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
+
+      <div class="add-release-form" id="releaseForm">
+        <div class="release-grid">
+          <div>
+            <label class="field-label">Etapa</label>
+            <input id="releaseLabel" class="f-input" placeholder="Ex: 3ª medição" />
+          </div>
+          <div>
+            <label class="field-label">Valor liberado</label>
+            <input id="releaseAmount" class="f-input" inputmode="decimal" placeholder="0,00" />
+          </div>
+        </div>
+        <div class="release-grid">
+          <div>
+            <label class="field-label">Data</label>
+            <input id="releaseDate" class="f-input" type="date" />
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <button type="button" class="btn btn-primary" id="addReleaseBtn">Registrar liberação</button>
+          </div>
         </div>
       </div>
-      <div class="full stage-field" id="stageField">
-        <label class="field-label">Etapa do financiamento (opcional)</label>
-        <input id="stageInput" class="obra-input" placeholder="Ex: 2ª medição" />
+
+      <div class="mini-list">
+        <div class="field-label" style="margin-bottom:8px;">Liberações registradas</div>
+        <div id="releaseList"></div>
       </div>
     </div>
-    <button id="addBtn" class="add-btn">+ Adicionar gasto</button>
+
+    <!-- RECURSOS PRÓPRIOS -->
+    <div class="card tone-tarp">
+      <div class="card-head">
+        <div class="card-title"><span class="dot tarp"></span>Recursos próprios</div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Total gasto</div>
+          <div id="totalProprio" class="kpi-value num">R$ 0</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Pix · Cartão</div>
+          <div id="proprioSplit" class="kpi-value num" style="font-size:14px;">R$ 0 · R$ 0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANÇAR PAGAMENTO -->
+    <div class="card">
+      <div class="section-title">Lançar pagamento a fornecedor</div>
+      <div class="form-grid">
+        <div class="full">
+          <label class="field-label">Fornecedor</label>
+          <input id="supplierInput" class="f-input" placeholder="Ex: Depósito São João" />
+        </div>
+        <div class="row-3 full-row">
+          <div>
+            <label class="field-label">Categoria</label>
+            <select id="catInput" class="f-select">
+              <option value="Materiais">Materiais</option>
+              <option value="Mão de obra">Mão de obra</option>
+              <option value="Equipamentos">Equipamentos</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Licenças/Taxas">Licenças/Taxas</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Valor (R$)</label>
+            <input id="amountInput" class="f-input" inputmode="decimal" placeholder="0,00" />
+          </div>
+          <div>
+            <label class="field-label">Data</label>
+            <input id="dateInput" class="f-input" type="date" />
+          </div>
+        </div>
+        <div class="full">
+          <label class="field-label">Pago com</label>
+          <div class="toggle-2" id="originToggle">
+            <button type="button" data-origin="financiamento">Financiamento Caixa</button>
+            <button type="button" data-origin="proprio">Recurso próprio</button>
+          </div>
+          <div class="warn-note" id="saldoWarn">Isso passa do saldo disponível do financiamento.</div>
+        </div>
+        <div class="full sub-block" id="ownMethodField">
+          <label class="field-label">Forma</label>
+          <div class="toggle-3" id="methodToggle">
+            <button type="button" data-method="Pix">Pix</button>
+            <button type="button" data-method="Cartão de crédito">Cartão de crédito</button>
+          </div>
+        </div>
+        <div class="full sub-block" id="installmentsField">
+          <div class="row-2">
+            <div>
+              <label class="field-label">Parcelado em</label>
+              <input id="installmentsInput" class="f-input" type="number" min="1" max="48" inputmode="numeric" value="1" />
+            </div>
+            <div>
+              <label class="field-label">Valor da parcela</label>
+              <div id="installmentPreview" class="f-input num" style="background:var(--bg); display:flex; align-items:center;">R$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="addExpenseBtn" class="btn btn-primary" style="margin-top:10px;">+ Registrar pagamento</button>
+    </div>
+
+    <!-- CATEGORIAS -->
+    <div class="card" id="catCard" style="display:none;">
+      <div class="section-title">Por categoria</div>
+      <div id="catRows"></div>
+    </div>
+
+    <!-- EXTRATO -->
+    <div class="filter-row" id="filterRow"></div>
+    <div class="ledger" id="ledger"></div>
+
   </div>
-
-  <div id="catBreakdown" class="cat-breakdown" style="display:none;">
-    <div class="panel-title">Por categoria</div>
-    <div id="catRows"></div>
-  </div>
-
-  <div id="sourceBreakdown" class="cat-breakdown" style="display:none;">
-    <div class="panel-title">Por origem</div>
-    <div id="sourceRows"></div>
-  </div>
-
-  <div class="filter-row" id="filterRow"></div>
-  <div class="filter-row" id="sourceFilterRow"></div>
-
-  <div class="ledger" id="ledger"></div>
 </div>
 
 <script>
 (function () {
   const CATS = {
-    "Materiais": "#43607A",
+    "Materiais": "#1E5AA8",
     "Mão de obra": "#AE4530",
     "Equipamentos": "#DE9F2E",
-    "Transporte": "#5C7A52",
+    "Transporte": "#3F7A57",
     "Licenças/Taxas": "#7A5C43",
     "Outros": "#8A8778"
   };
-  const SOURCES = {
-    "Financiamento Caixa": "#1E5AA8",
-    "Pix": "#2DA89A",
-    "Cartão de crédito": "#7A4B8A",
-    "Dinheiro": "#6B6B63"
+
+  const STORAGE_KEY = "obra-data-v2";
+  let state = {
+    projectName: "Minha obra",
+    totalContratado: 0,
+    releases: [],   // {id, label, amount, date}
+    expenses: []    // {id, supplier, category, amount, date, origin: 'financiamento'|'proprio', method?: 'Pix'|'Cartão de crédito'}
   };
-  const STORAGE_KEY = "obra-data";
-  let state = { projectName: "Minha obra", budget: 0, caixaBudget: 0, expenses: [] };
+
+  let selectedOrigin = "financiamento";
+  let selectedMethod = "Pix";
   let activeFilter = "Todas";
-  let activeSourceFilter = "Todas";
-  let selectedOrigin = "proprio"; // "proprio" | "financiamento"
-  let selectedSource = "Pix";
+  let releaseFormOpen = false;
 
   const $ = (id) => document.getElementById(id);
   const fmt = (n) => "R$ " + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-  function todayISO() {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
-  }
-
-  async function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        state = Object.assign(state, parsed);
-      }
-    } catch (e) {
-      // no data yet
-    }
-    $('projectName').value = state.projectName || "Minha obra";
-    $('budgetInput').value = state.budget ? String(state.budget) : "0";
-    $('caixaBudgetInput').value = state.caixaBudget ? String(state.caixaBudget) : "0";
-    $('dateInput').value = todayISO();
-    setSelectedOrigin(selectedOrigin);
-    setSelectedSource(selectedSource);
-    render();
-  }
-
-  function setSelectedOrigin(origin) {
-    selectedOrigin = origin;
-    document.querySelectorAll('#originToggle button').forEach(btn => {
-      const isActive = btn.dataset.origin === origin;
-      btn.classList.toggle('active', isActive);
-      btn.style.background = isActive ? (origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)') : '#fff';
-    });
-    $('ownSourceField').classList.toggle('show', origin === 'proprio');
-    $('stageField').classList.toggle('show', origin === 'financiamento');
-  }
-
-  document.querySelectorAll('#originToggle button').forEach(btn => {
-    btn.addEventListener('click', () => setSelectedOrigin(btn.dataset.origin));
-  });
-
-  function setSelectedSource(src) {
-    selectedSource = src;
-    document.querySelectorAll('#sourceToggle button').forEach(btn => {
-      const isActive = btn.dataset.source === src;
-      btn.classList.toggle('active', isActive);
-      btn.style.background = isActive ? (SOURCES[src] || 'var(--ink)') : '#fff';
-    });
-  }
-
-  document.querySelectorAll('#sourceToggle button').forEach(btn => {
-    btn.addEventListener('click', () => setSelectedSource(btn.dataset.source));
-  });
-
-  async function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.error("Falha ao salvar", e);
-    }
-  }
+  const todayISO = () => new Date().toISOString().slice(0, 10);
 
   function parseAmount(v) {
     if (!v) return 0;
@@ -553,75 +500,226 @@
     return isNaN(n) ? 0 : n;
   }
 
+  async function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) state = Object.assign(state, JSON.parse(raw));
+    } catch (e) {}
+
+    $('projectName').value = state.projectName || "Minha obra";
+    $('totalContratado').value = state.totalContratado ? String(state.totalContratado) : "0";
+    $('releaseDate').value = todayISO();
+    $('dateInput').value = todayISO();
+    setOrigin(selectedOrigin);
+    setMethod(selectedMethod);
+    render();
+  }
+
+  async function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) { console.error("Falha ao salvar", e); }
+  }
+
+  $('projectName').addEventListener('change', () => {
+    state.projectName = $('projectName').value || "Minha obra";
+    save();
+  });
+
+  $('totalContratado').addEventListener('change', () => {
+    state.totalContratado = parseAmount($('totalContratado').value);
+    $('totalContratado').value = state.totalContratado ? String(state.totalContratado) : "0";
+    save();
+    render();
+  });
+
+  $('toggleReleaseForm').addEventListener('click', () => {
+    releaseFormOpen = !releaseFormOpen;
+    $('releaseForm').classList.toggle('show', releaseFormOpen);
+    $('toggleReleaseForm').textContent = releaseFormOpen ? "− Fechar" : "+ Lançar liberação (etapa)";
+  });
+
+  $('addReleaseBtn').addEventListener('click', () => {
+    const label = $('releaseLabel').value.trim() || "Liberação";
+    const amount = parseAmount($('releaseAmount').value);
+    const date = $('releaseDate').value || todayISO();
+    if (amount <= 0) {
+      $('releaseAmount').style.borderColor = 'var(--brick)';
+      return;
+    }
+    $('releaseAmount').style.borderColor = 'var(--line-strong)';
+    state.releases.push({ id: Date.now(), label, amount, date });
+    save();
+    $('releaseLabel').value = '';
+    $('releaseAmount').value = '';
+    $('releaseDate').value = todayISO();
+    render();
+  });
+
+  function setOrigin(origin) {
+    selectedOrigin = origin;
+    document.querySelectorAll('#originToggle button').forEach(btn => {
+      const active = btn.dataset.origin === origin;
+      btn.classList.toggle('active', active);
+      btn.style.background = active ? (origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)') : '#fff';
+      btn.style.color = active ? '#fff' : 'var(--ink)';
+    });
+    $('ownMethodField').classList.toggle('show', origin === 'proprio');
+    checkSaldoWarning();
+  }
+  document.querySelectorAll('#originToggle button').forEach(btn => {
+    btn.addEventListener('click', () => setOrigin(btn.dataset.origin));
+  });
+
+  function setMethod(m) {
+    selectedMethod = m;
+    document.querySelectorAll('#methodToggle button').forEach(btn => {
+      const active = btn.dataset.method === m;
+      btn.classList.toggle('active', active);
+      btn.style.background = active ? 'var(--tarp)' : '#fff';
+      btn.style.color = active ? '#fff' : 'var(--ink)';
+    });
+    $('installmentsField').classList.toggle('show', m === 'Cartão de crédito');
+    if (m !== 'Cartão de crédito') $('installmentsInput').value = '1';
+    updateInstallmentPreview();
+  }
+  document.querySelectorAll('#methodToggle button').forEach(btn => {
+    btn.addEventListener('click', () => setMethod(btn.dataset.method));
+  });
+
+  function updateInstallmentPreview() {
+    const amount = parseAmount($('amountInput').value);
+    let n = parseInt($('installmentsInput').value, 10);
+    if (!n || n < 1) n = 1;
+    $('installmentPreview').textContent = fmt(amount / n);
+  }
+  $('installmentsInput').addEventListener('input', updateInstallmentPreview);
+
+  function saldoFinanc() {
+    const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
+    const pago = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
+    return liberado - pago;
+  }
+
+  function checkSaldoWarning() {
+    const amount = parseAmount($('amountInput').value);
+    const show = selectedOrigin === 'financiamento' && amount > 0 && amount > saldoFinanc();
+    $('saldoWarn').classList.toggle('show', show);
+    updateInstallmentPreview();
+  }
+  $('amountInput').addEventListener('input', checkSaldoWarning);
+
+  $('addExpenseBtn').addEventListener('click', () => {
+    const supplier = $('supplierInput').value.trim();
+    const category = $('catInput').value;
+    const amount = parseAmount($('amountInput').value);
+    const date = $('dateInput').value || todayISO();
+
+    let ok = true;
+    if (!supplier) { $('supplierInput').style.borderColor = 'var(--brick)'; ok = false; }
+    else { $('supplierInput').style.borderColor = 'var(--line-strong)'; }
+    if (amount <= 0) { $('amountInput').style.borderColor = 'var(--brick)'; ok = false; }
+    else { $('amountInput').style.borderColor = 'var(--line-strong)'; }
+    if (!ok) return;
+
+    const expense = {
+      id: Date.now(),
+      supplier, category, amount, date,
+      origin: selectedOrigin,
+      method: selectedOrigin === 'proprio' ? selectedMethod : null,
+      installments: (selectedOrigin === 'proprio' && selectedMethod === 'Cartão de crédito')
+        ? (parseInt($('installmentsInput').value, 10) || 1)
+        : null
+    };
+    state.expenses.push(expense);
+    save();
+
+    $('supplierInput').value = '';
+    $('amountInput').value = '';
+    $('dateInput').value = todayISO();
+    $('installmentsInput').value = '1';
+    $('saldoWarn').classList.remove('show');
+    updateInstallmentPreview();
+    $('supplierInput').focus();
+    render();
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
   function render() {
-    const spent = state.expenses.reduce((s, e) => s + e.amount, 0);
-    const budget = state.budget || 0;
-    const balance = budget - spent;
-    const pct = budget > 0 ? Math.min(999, Math.round((spent / budget) * 100)) : 0;
+    // ---- financiamento ----
+    const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
+    const contratado = state.totalContratado || 0;
+    const pagoFinanc = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
+    const saldo = liberado - pagoFinanc;
 
-    $('spentValue').textContent = fmt(spent);
-    const balEl = $('balanceValue');
-    balEl.textContent = fmt(balance);
-    balEl.className = 'stat-value ' + (balance < 0 ? 'over' : balance > 0 ? 'under' : '');
+    $('totalLiberado').textContent = fmt(liberado);
+    const pct = contratado > 0 ? Math.min(999, Math.round((liberado / contratado) * 100)) : 0;
+    $('contratadoPct').textContent = pct + '% liberado';
+    $('contratadoRestante').textContent = 'Falta liberar ' + fmt(Math.max(0, contratado - liberado));
+    $('contratadoFill').style.width = Math.min(100, pct) + '%';
 
-    const caixaSpent = state.expenses.filter(e => e.source === "Financiamento Caixa").reduce((s, e) => s + e.amount, 0);
-    const ownSpent = spent - caixaSpent;
-    $('caixaValue').textContent = fmt(caixaSpent);
-    $('ownValue').textContent = fmt(ownSpent);
+    $('totalPagoFinanc').textContent = fmt(pagoFinanc);
+    const saldoEl = $('saldoFinanc');
+    saldoEl.textContent = fmt(saldo);
+    saldoEl.className = 'kpi-value num ' + (saldo < 0 ? 'danger' : 'ok');
 
-    const caixaBudget = state.caixaBudget || 0;
-    const caixaPct = caixaBudget > 0 ? Math.min(999, Math.round((caixaSpent / caixaBudget) * 100)) : 0;
-    $('caixaGaugePct').textContent = caixaPct + '%';
-    $('caixaGaugePct').style.color = caixaPct > 100 ? 'var(--brick)' : 'var(--ink)';
-    const caixaFill = $('caixaGaugeFill');
-    caixaFill.style.width = Math.min(100, caixaPct) + '%';
-    caixaFill.className = 'gauge-fill' + (caixaPct > 100 ? ' over-fill' : '');
-    caixaFill.style.background = caixaPct > 100 ? '' : 'repeating-linear-gradient(135deg, var(--caixa), var(--caixa) 8px, #163F73 8px, #163F73 16px)';
+    // release list
+    const relEl = $('releaseList');
+    if (state.releases.length === 0) {
+      relEl.innerHTML = '<div class="mini-empty">Nenhuma liberação lançada ainda.</div>';
+    } else {
+      const sorted = state.releases.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
+      relEl.innerHTML = sorted.map(r => {
+        const d = r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+        return `<div class="mini-row">
+          <div class="mini-left">
+            <div class="mini-name">${escapeHtml(r.label)}</div>
+            <div class="mini-date">${d}</div>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <span class="mini-amt num">${fmt(r.amount)}</span>
+            <button class="mini-del" data-relid="${r.id}" title="Remover">×</button>
+          </div>
+        </div>`;
+      }).join('');
+      relEl.querySelectorAll('.mini-del').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.releases = state.releases.filter(r => String(r.id) !== btn.dataset.relid);
+          save();
+          render();
+        });
+      });
+    }
 
-    $('gaugePct').textContent = pct + '%';
-    $('gaugePct').style.color = pct > 100 ? 'var(--brick)' : 'var(--ink)';
-    const fill = $('gaugeFill');
-    fill.style.width = Math.min(100, pct) + '%';
-    fill.className = 'gauge-fill' + (pct > 100 ? ' over-fill' : '');
+    // ---- recursos próprios ----
+    const ownExpenses = state.expenses.filter(e => e.origin === 'proprio');
+    const totalProprio = ownExpenses.reduce((s, e) => s + e.amount, 0);
+    const pix = ownExpenses.filter(e => e.method === 'Pix').reduce((s, e) => s + e.amount, 0);
+    const cartao = ownExpenses.filter(e => e.method === 'Cartão de crédito').reduce((s, e) => s + e.amount, 0);
+    $('totalProprio').textContent = fmt(totalProprio);
+    $('proprioSplit').textContent = fmt(pix) + ' · ' + fmt(cartao);
 
-    // category breakdown
+    checkSaldoWarning();
+
+    // ---- category breakdown ----
     const byCat = {};
     state.expenses.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + e.amount; });
     const catKeys = Object.keys(byCat).sort((a, b) => byCat[b] - byCat[a]);
-    const bkEl = $('catBreakdown');
-    if (catKeys.length === 0) {
-      bkEl.style.display = 'none';
-    } else {
-      bkEl.style.display = '';
+    $('catCard').style.display = catKeys.length ? '' : 'none';
+    if (catKeys.length) {
       const max = Math.max(...catKeys.map(k => byCat[k]));
       $('catRows').innerHTML = catKeys.map(k => `
         <div class="cat-row">
           <div class="cat-name"><span class="cat-chip" style="background:${CATS[k] || '#999'}"></span>${k}</div>
           <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(byCat[k]/max*100)}%;background:${CATS[k] || '#999'}"></div></div>
-          <div class="cat-amt">${fmt(byCat[k])}</div>
+          <div class="cat-amt num">${fmt(byCat[k])}</div>
         </div>`).join('');
     }
 
-    // source breakdown
-    const bySrc = {};
-    state.expenses.forEach(e => { bySrc[e.source] = (bySrc[e.source] || 0) + e.amount; });
-    const srcKeys = Object.keys(bySrc).sort((a, b) => bySrc[b] - bySrc[a]);
-    const srcEl = $('sourceBreakdown');
-    if (srcKeys.length === 0) {
-      srcEl.style.display = 'none';
-    } else {
-      srcEl.style.display = '';
-      const maxSrc = Math.max(...srcKeys.map(k => bySrc[k]));
-      $('sourceRows').innerHTML = srcKeys.map(k => `
-        <div class="cat-row">
-          <div class="cat-name"><span class="cat-chip" style="background:${SOURCES[k] || '#999'}"></span>${k}</div>
-          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(bySrc[k]/maxSrc*100)}%;background:${SOURCES[k] || '#999'}"></div></div>
-          <div class="cat-amt">${fmt(bySrc[k])}</div>
-        </div>`).join('');
-    }
-
-    // filter chips
-    const filters = ["Todas", ...Object.keys(CATS).filter(c => state.expenses.some(e => e.category === c))];
+    // ---- filters ----
+    const filters = ["Todas", "Financiamento", "Recurso próprio"];
     $('filterRow').innerHTML = filters.map(f =>
       `<button class="filter-chip ${f === activeFilter ? 'active' : ''}" data-filter="${f}">${f}</button>`
     ).join('');
@@ -629,36 +727,35 @@
       btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; render(); });
     });
 
-    const sourceFilters = ["Todas", ...Object.keys(SOURCES).filter(s => state.expenses.some(e => e.source === s))];
-    $('sourceFilterRow').innerHTML = sourceFilters.map(f =>
-      `<button class="filter-chip ${f === activeSourceFilter ? 'active' : ''}" data-sfilter="${f}">${f}</button>`
-    ).join('');
-    $('sourceFilterRow').querySelectorAll('.filter-chip').forEach(btn => {
-      btn.addEventListener('click', () => { activeSourceFilter = btn.dataset.sfilter; render(); });
-    });
-
-    // ledger
+    // ---- ledger ----
     const list = state.expenses
-      .filter(e => activeFilter === "Todas" || e.category === activeFilter)
-      .filter(e => activeSourceFilter === "Todas" || e.source === activeSourceFilter)
+      .filter(e => {
+        if (activeFilter === 'Todas') return true;
+        if (activeFilter === 'Financiamento') return e.origin === 'financiamento';
+        return e.origin === 'proprio';
+      })
       .slice()
       .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
 
     const ledgerEl = $('ledger');
     if (list.length === 0) {
-      ledgerEl.innerHTML = '<div class="ledger-empty">Nenhum gasto lançado ainda. Adicione o primeiro acima.</div>';
+      ledgerEl.innerHTML = '<div class="ledger-empty">Nenhum pagamento lançado ainda.</div>';
     } else {
       ledgerEl.innerHTML = list.map(e => {
-        const dateStr = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
-        return `
-        <div class="ledger-item">
-          <div class="ledger-stripe" style="background:${CATS[e.category] || '#999'}"></div>
+        const d = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+        const stripeColor = e.origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)';
+        const originLabel = e.origin === 'financiamento' ? 'Financiamento Caixa' :
+          (e.method === 'Cartão de crédito' && e.installments > 1
+            ? `Cartão · ${e.installments}x de ${fmt(e.amount / e.installments)}`
+            : e.method);
+        return `<div class="ledger-item">
+          <div style="background:${stripeColor}"></div>
           <div class="ledger-body">
             <div class="ledger-top">
-              <div class="ledger-desc">${escapeHtml(e.desc)}</div>
-              <div class="ledger-amt">${fmt(e.amount)}</div>
+              <div class="ledger-desc">${escapeHtml(e.supplier)}</div>
+              <div class="ledger-amt num">${fmt(e.amount)}</div>
             </div>
-            <div class="ledger-meta"><span>${e.category}</span><span>${dateStr}</span><span>${e.source}${e.stage ? ' · ' + escapeHtml(e.stage) : ''}</span></div>
+            <div class="ledger-meta"><span>${e.category}</span><span>${d}</span><span>${originLabel}</span></div>
           </div>
           <button class="ledger-del" data-id="${e.id}" title="Remover">×</button>
         </div>`;
@@ -672,60 +769,6 @@
       });
     }
   }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-
-  $('projectName').addEventListener('change', () => {
-    state.projectName = $('projectName').value || "Minha obra";
-    save();
-  });
-
-  $('budgetInput').addEventListener('change', () => {
-    state.budget = parseAmount($('budgetInput').value);
-    $('budgetInput').value = state.budget ? String(state.budget) : "0";
-    save();
-    render();
-  });
-
-  $('caixaBudgetInput').addEventListener('change', () => {
-    state.caixaBudget = parseAmount($('caixaBudgetInput').value);
-    $('caixaBudgetInput').value = state.caixaBudget ? String(state.caixaBudget) : "0";
-    save();
-    render();
-  });
-
-  $('addBtn').addEventListener('click', () => {
-    const desc = $('descInput').value.trim();
-    const amount = parseAmount($('amountInput').value);
-    const category = $('catInput').value;
-    const date = $('dateInput').value || todayISO();
-
-    if (!desc || amount <= 0) {
-      $('descInput').style.borderColor = !desc ? 'var(--brick)' : 'var(--line-strong)';
-      $('amountInput').style.borderColor = amount <= 0 ? 'var(--brick)' : 'var(--line-strong)';
-      return;
-    }
-    $('descInput').style.borderColor = 'var(--line-strong)';
-    $('amountInput').style.borderColor = 'var(--line-strong)';
-
-    const finalSource = selectedOrigin === 'financiamento' ? 'Financiamento Caixa' : selectedSource;
-    const stage = selectedOrigin === 'financiamento' ? $('stageInput').value.trim() : '';
-    state.expenses.push({ id: Date.now(), desc, amount, category, date, source: finalSource, stage });
-    save();
-
-    $('descInput').value = '';
-    $('amountInput').value = '';
-    $('dateInput').value = todayISO();
-    $('stageInput').value = '';
-    $('descInput').focus();
-
-    render();
-  });
-
-  $('descInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('addBtn').click(); });
-  $('amountInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('addBtn').click(); });
 
   load();
 })();
