@@ -331,7 +331,10 @@
       <div class="kpi-row">
         <div class="kpi">
           <div class="kpi-label">Valor total contratado</div>
-          <input id="totalContratado" class="edit-inline" inputmode="decimal" value="0" />
+          <div style="display:flex; align-items:baseline; gap:4px;">
+            <span class="num" style="font-size:19px; font-weight:600;">R$</span>
+            <input id="totalContratado" class="edit-inline" inputmode="decimal" value="0,00" />
+          </div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Liberado até agora</div>
@@ -512,6 +515,7 @@
 
   const $ = (id) => document.getElementById(id);
   const fmt = (n) => "R$ " + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtNum = (n) => (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const todayISO = () => new Date().toISOString().slice(0, 10);
 
   function parseAmount(v) {
@@ -528,7 +532,7 @@
     } catch (e) {}
 
     $('projectName').value = state.projectName || "Minha obra";
-    $('totalContratado').value = state.totalContratado ? String(state.totalContratado) : "0";
+    $('totalContratado').value = state.totalContratado ? fmtNum(state.totalContratado) : "0,00";
     $('releaseDate').value = todayISO();
     $('dateInput').value = todayISO();
     setOrigin(selectedOrigin);
@@ -548,7 +552,7 @@
 
   $('totalContratado').addEventListener('change', () => {
     state.totalContratado = parseAmount($('totalContratado').value);
-    $('totalContratado').value = state.totalContratado ? String(state.totalContratado) : "0";
+    $('totalContratado').value = state.totalContratado ? fmtNum(state.totalContratado) : "0,00";
     save();
     render();
   });
@@ -779,6 +783,9 @@
       relEl.querySelectorAll('.mini-del').forEach(btn => {
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
+          const r = state.releases.find(x => String(x.id) === btn.dataset.relid);
+          const label = r ? `a liberação "${r.label}" (${fmt(r.amount)})` : 'essa liberação';
+          if (!confirm(`Excluir ${label}? Essa ação não pode ser desfeita.`)) return;
           if (editingReleaseId === Number(btn.dataset.relid)) cancelReleaseEdit();
           state.releases = state.releases.filter(r => String(r.id) !== btn.dataset.relid);
           save();
@@ -867,6 +874,9 @@
       ledgerEl.querySelectorAll('.ledger-del').forEach(btn => {
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
+          const e = state.expenses.find(x => String(x.id) === btn.dataset.id);
+          const label = e ? `o pagamento a "${e.supplier}" (${fmt(e.amount)})` : 'esse pagamento';
+          if (!confirm(`Excluir ${label}? Essa ação não pode ser desfeita.`)) return;
           if (editingExpenseId === Number(btn.dataset.id)) cancelExpenseEdit();
           state.expenses = state.expenses.filter(e => String(e.id) !== btn.dataset.id);
           save();
