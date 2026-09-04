@@ -1,4 +1,4 @@
-const CACHE_NAME = "controle-obra-v5";
+const CACHE_NAME = "controle-obra-v6";
 const ASSETS = [
   "./index.html",
   "./manifest.json",

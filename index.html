@@ -315,6 +315,13 @@
 
   <div class="wrap">
 
+    <!-- RESUMO GERAL -->
+    <div class="card" style="border-left-color:var(--amber-deep); background:var(--ink); color:#fff;">
+      <div class="kpi-label" style="color:#B7C3D1;">Total geral já pago na obra</div>
+      <div id="totalGeral" class="kpi-value num" style="font-size:26px; color:#fff;">R$ 0</div>
+      <div style="font-size:11.5px; color:#9FB0C2; margin-top:2px;">Financiamento + recursos próprios · <span id="totalGeralCount">0</span> lançamentos</div>
+    </div>
+
     <!-- FINANCIAMENTO -->
     <div class="card tone-caixa">
       <div class="card-head">
@@ -721,6 +728,11 @@
     const totalLancamentos = state.releases.length + state.expenses.length;
     $('extratoCount').textContent = totalLancamentos ? `(${totalLancamentos})` : '';
 
+    // ---- resumo geral ----
+    const totalGeral = state.expenses.reduce((s, e) => s + e.amount, 0);
+    $('totalGeral').textContent = fmt(totalGeral);
+    $('totalGeralCount').textContent = String(state.expenses.length);
+
     // ---- financiamento ----
     const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
     const contratado = state.totalContratado || 0;
@@ -801,8 +813,11 @@
     }
 
     // ---- filters ----
-    const filters = ["Todas", "Financiamento", "Recurso próprio"];
-    $('filterRow').innerHTML = filters.map(f =>
+    const filterOptions = ["Todas", "Financiamento Caixa", "Pix", "Cartão de crédito"]
+      .filter(f => f === 'Todas' ||
+        (f === 'Financiamento Caixa' && state.expenses.some(e => e.origin === 'financiamento')) ||
+        state.expenses.some(e => e.origin === 'proprio' && e.method === f));
+    $('filterRow').innerHTML = filterOptions.map(f =>
       `<button class="filter-chip ${f === activeFilter ? 'active' : ''}" data-filter="${f}">${f}</button>`
     ).join('');
     $('filterRow').querySelectorAll('.filter-chip').forEach(btn => {
@@ -813,8 +828,8 @@
     const list = state.expenses
       .filter(e => {
         if (activeFilter === 'Todas') return true;
-        if (activeFilter === 'Financiamento') return e.origin === 'financiamento';
-        return e.origin === 'proprio';
+        if (activeFilter === 'Financiamento Caixa') return e.origin === 'financiamento';
+        return e.origin === 'proprio' && e.method === activeFilter;
       })
       .slice()
       .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
