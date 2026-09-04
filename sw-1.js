@@ -1,9 +1,6 @@
-const CACHE_NAME = "controle-obra-v10";
+const CACHE_NAME = "controle-obra-v14";
 const ASSETS = [
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./index.html"
 ];
 
 self.addEventListener("install", (event) => {
