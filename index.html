@@ -319,7 +319,7 @@
     <div class="card" style="border-left-color:var(--amber-deep); background:var(--ink); color:#fff;">
       <div class="kpi-label" style="color:#B7C3D1;">Total geral já pago na obra</div>
       <div id="totalGeral" class="kpi-value num" style="font-size:26px; color:#fff;">R$ 0</div>
-      <div style="font-size:11.5px; color:#9FB0C2; margin-top:2px;">Financiamento + recursos próprios · <span id="totalGeralCount">0</span> lançamentos</div>
+      <div style="font-size:11.5px; color:#9FB0C2; margin-top:2px;">Financiamento + recursos próprios + FGTS + terreno · <span id="totalGeralCount">0</span> lançamentos</div>
     </div>
 
     <!-- FINANCIAMENTO -->
@@ -399,6 +399,52 @@
           <div class="kpi-label">Pix · Cartão</div>
           <div id="proprioSplit" class="kpi-value num" style="font-size:14px;">R$ 0 · R$ 0</div>
         </div>
+      </div>
+    </div>
+
+    <!-- OUTRAS ORIGENS -->
+    <div class="card" style="border-left-color:var(--amber-deep);">
+      <div class="card-head">
+        <div class="card-title"><span class="dot" style="background:var(--amber-deep);"></span>Outras origens</div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Valor usado do FGTS</div>
+          <div style="display:flex; align-items:baseline; gap:4px;">
+            <span class="num" style="font-size:19px; font-weight:600;">R$</span>
+            <input id="fgtsInput" class="edit-inline" inputmode="decimal" value="0,00" />
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Pago no terreno (antes do financ.)</div>
+          <div style="display:flex; align-items:baseline; gap:4px;">
+            <span class="num" style="font-size:19px; font-weight:600;">R$</span>
+            <input id="terrenoInput" class="edit-inline" inputmode="decimal" value="0,00" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VALOR TOTAL DA OBRA COM TERRENO -->
+    <div class="card" style="border-left-color:var(--ink); background:#F3F1EA;">
+      <div class="card-head">
+        <div class="card-title">Valor total da obra com terreno</div>
+      </div>
+      <div class="mini-row" style="border-bottom:1px dashed var(--line);">
+        <div class="mini-left"><div class="mini-name" style="font-weight:400;">Financiamento contratado</div></div>
+        <span id="totalObraFinanc" class="mini-amt num">R$ 0</span>
+      </div>
+      <div class="mini-row" style="border-bottom:1px dashed var(--line);">
+        <div class="mini-left"><div class="mini-name" style="font-weight:400;">FGTS usado</div></div>
+        <span id="totalObraFgts" class="mini-amt num">R$ 0</span>
+      </div>
+      <div class="mini-row" style="border-bottom:1px solid var(--line-strong);">
+        <div class="mini-left"><div class="mini-name" style="font-weight:400;">Pago no terreno (antes do financ.)</div></div>
+        <span id="totalObraTerreno" class="mini-amt num">R$ 0</span>
+      </div>
+      <div class="mini-row" style="padding-top:9px;">
+        <div class="mini-left"><div class="mini-name" style="font-size:14px;">Total</div></div>
+        <span id="totalObraGeral" class="mini-amt num" style="font-size:19px;">R$ 0</span>
       </div>
     </div>
 
@@ -502,6 +548,8 @@
   let state = {
     projectName: "Minha obra",
     totalContratado: 0,
+    fgtsUsado: 0,
+    terrenoPago: 0,
     releases: [],   // {id, label, amount, date}
     expenses: []    // {id, supplier, category, amount, date, origin: 'financiamento'|'proprio', method?: 'Pix'|'Cartão de crédito'}
   };
@@ -533,6 +581,8 @@
 
     $('projectName').value = state.projectName || "Minha obra";
     $('totalContratado').value = state.totalContratado ? fmtNum(state.totalContratado) : "0,00";
+    $('fgtsInput').value = state.fgtsUsado ? fmtNum(state.fgtsUsado) : "0,00";
+    $('terrenoInput').value = state.terrenoPago ? fmtNum(state.terrenoPago) : "0,00";
     $('releaseDate').value = todayISO();
     $('dateInput').value = todayISO();
     setOrigin(selectedOrigin);
@@ -553,6 +603,20 @@
   $('totalContratado').addEventListener('change', () => {
     state.totalContratado = parseAmount($('totalContratado').value);
     $('totalContratado').value = state.totalContratado ? fmtNum(state.totalContratado) : "0,00";
+    save();
+    render();
+  });
+
+  $('fgtsInput').addEventListener('change', () => {
+    state.fgtsUsado = parseAmount($('fgtsInput').value);
+    $('fgtsInput').value = state.fgtsUsado ? fmtNum(state.fgtsUsado) : "0,00";
+    save();
+    render();
+  });
+
+  $('terrenoInput').addEventListener('change', () => {
+    state.terrenoPago = parseAmount($('terrenoInput').value);
+    $('terrenoInput').value = state.terrenoPago ? fmtNum(state.terrenoPago) : "0,00";
     save();
     render();
   });
@@ -733,9 +797,18 @@
     $('extratoCount').textContent = totalLancamentos ? `(${totalLancamentos})` : '';
 
     // ---- resumo geral ----
-    const totalGeral = state.expenses.reduce((s, e) => s + e.amount, 0);
+    const totalGeral = state.expenses.reduce((s, e) => s + e.amount, 0) + (state.fgtsUsado || 0) + (state.terrenoPago || 0);
     $('totalGeral').textContent = fmt(totalGeral);
     $('totalGeralCount').textContent = String(state.expenses.length);
+
+    // ---- valor total da obra com terreno ----
+    const financContratado = state.totalContratado || 0;
+    const fgts = state.fgtsUsado || 0;
+    const terreno = state.terrenoPago || 0;
+    $('totalObraFinanc').textContent = fmt(financContratado);
+    $('totalObraFgts').textContent = fmt(fgts);
+    $('totalObraTerreno').textContent = fmt(terreno);
+    $('totalObraGeral').textContent = fmt(financContratado + fgts + terreno);
 
     // ---- financiamento ----
     const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
@@ -905,6 +978,14 @@ function downloadCSV() {
   });
 
   dataRows.sort((a, b) => (a[0] || '').localeCompare(b[0] || ''));
+
+  if (data.fgtsUsado) {
+    dataRows.push(['', 'FGTS', 'Valor usado do FGTS', '', 'FGTS', '', String(data.fgtsUsado).replace('.', ',')]);
+  }
+  if (data.terrenoPago) {
+    dataRows.push(['', 'Terreno', 'Pago no terreno (antes do financiamento)', '', 'Recurso próprio', '', String(data.terrenoPago).replace('.', ',')]);
+  }
+
   const rows = [["Data", "Tipo", "Descrição", "Categoria", "Origem/Forma", "Parcelas", "Valor"], ...dataRows];
 
   const csv = rows.map(row =>
