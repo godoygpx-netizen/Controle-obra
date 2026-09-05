@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Obra</title>
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkNvbnRyb2xlIGRlIE9icmEiLCAic2hvcnRfbmFtZSI6ICJDb250cm9sZSBkZSBPYnJhIiwgImRlc2NyaXB0aW9uIjogIkNvbnRyb2xlIGRlIGZpbmFuY2lhbWVudG8gQ2FpeGEgKGxpYmVyYcOnw7VlcyBwb3IgZXRhcGEpIGUgcGFnYW1lbnRvcyBjb20gcmVjdXJzb3MgcHLDs3ByaW9zIiwgInN0YXJ0X3VybCI6ICIuL2luZGV4Lmh0bWwiLCAic2NvcGUiOiAiLi8iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0IiwgImJhY2tncm91bmRfY29sb3IiOiAiI0VCRURGMCIsICJ0aGVtZV9jb2xvciI6ICIjMTgyMjMwIiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBTUFBQUFEQUNBSUFBQURkdnZ0UUFBQUphRWxFUVZSNG5PM2RUMndVNXhuSDhkLzd6cXovWUd4d2lFT0NxR2hwY0Z5aXRDSUZJVUZhQTFJVU5TaW1rQ2k0RkVXUUVrR2xIS0lxVVZSaGxVTXZKYVJwRG9tRUVvbFVQZlhVWHBxY21oNnFIblBJcVNmVVV3OEZETGIzLzc5NW54NEc3TnExbDdXZnRmZWRtZDlISEN4a1dUUGpyOS9abmQxbjFoeDY4U3lJMWlxYy84b1kwOFh0b0dRUmtmaUxoWUNpS0FLa1M5dER5V0tzdGZGWElRQmpUQlExLy8ydm0xRVVjUjJpMWtRa0NJS2R1NThNZ2xCRUZxMUFVZFJrUU5UYS9Na3J0dWd4VUd6RE40a1M1bjhqc1YzY0Rrb0JCa1FxREloVUdCQ3BNQ0JTWVVDa3dvQkloUUdSQ2dNaUZRWkVLZ3lJVkJnUXFUQWdVbUZBcE1LQVNJVUJrUW9ESWhVR1JDb01pRlFZRUtrd0lGSmhRS1RDZ0VpRkFaRUtBeUlWQmtRcURJaFVHQkNwTUNCU1lVQ2t3b0JJaFFHUkNnTWlGUVpFS2d5SVZCZ1FxVEFnVW1GQXBNS0FTSVVCdFdJTUxJOVFTenc4SzdJRzlTWUtGVmplZTMxbERHaDVnY1ZjQmQvOUJsNy9vY3lVMmRDS3dvZC9TL1lFRnBVNjltekhoMmZjdDBiUWRQajkzODBqbTlHSXVyMWwvdUVLdEpReGlCeWFFUzVQdUIzRHVGM0EyeitTcDNkaXBvUXc2UGJHK1ljQkxSTFhVMjNnZ3pOeVpBd3paUUFJTEQ1OTNZM3R3R3daQVEvWVlqd2VDd3hnQUNlNE5pbW45c3RzR2FHRk5hZzFNREtJR3o5ejMza0MxUVliV29RSFkwRXV3SzA4TGg2UnlZTnl1N0FRU21CUnJHSDdGdnp1aklPZ0VZR2ZpVFdQQWQwWFdOd3VZUEtnWER3cXQvTElMWDY0RTFyTVZmRGtkbHc5TGZVbW5HTkQ5ekVnQUFnRHpKWnhhcjljbXhRbjk4OWxTNy9Ib2xERnFmM3kvcVRVSTJDNTc4a2dCb1JjZ0h0RkhCbkRCMmVrMmtDMDh1b1NXTndwNEpVRDh1dFRNbFBpZ3lHQUFRVVd4U3AyYk1YbENkZU1XdFVUeXdXWUx1RGxBL0xLQVprdThvbDl0Z01LTEVvMWJCdkVaMis0M1NPbzFOdGFWSXhCdFk3M1RzdXAvVEpkeVBvNmxOMjlqMS9xR2huRWpRdHU5SEhrSysybVlBeWNvTmJFYjM4aUo3OHYrUXJDN0I3RnJBWVVuNmNLRmJ4N1hKN1ppWm55Nms1R3hxRHAwSWh3NWFUc0dFYXhsdDExS0l2N2JRQVJ6Slp4NWFSTTdKTTdCZlNzL3FGTVlGQnJZTEFYbjU1M2p3NmlWTXZvR3oreXVOUFdvbExIMUlSY1BLbzZBUVVXNVRxZWVnSTNMcmpIaHRCb1p2RkYrOHdGMUJQZzFoek9IcEkzbjVmcG9uYlpDQ3hteTlpN0F4LysxRlViRU1uY0JjWnNCUlFHbUM3aTJGNTU2d1c1VzBEUWlWOTJMc0JNQ2M5K0U3OThTZVlxQUxMVlVJWUNDaTFtU3pnOGl1dm5wQytIcUhPclJYd3g2ZEpSbVRvaCtVcTJybEJuSmFEUUlsL0J2bDM0NUx3TEE5UWFIWDY4WWcybWkvajVNWG5uUlprcExYMHBMY1V5RVpDMXFEYlEzNE9wRTY2L0I5WEd1anhqQ2d6dUZYRmhYTWJITW5TUk92MEJ4Vy9vQ1FOOGN0N3QyNFgxdSs1bkRBU0lJbno4bXZ4Z0ZQZUttYmc0bFBKZE5BYVJvQytINitmazhDaG1TK3Q3MWRnYU5CeHlJYTZmYzgrTm9sUkwvMFhxbE85ZllIQzNnTGRla0dON04raTBFaTk0ZlRsY1BlMDI5Nkt5UHFkTGY2UjU1NnpGZEJGdlBpOW5EOG10dWJWY2JsNmIrRFhhN1VQNDZEV1hXNGNIN0Y1SmJVRHgwNjZMUjJWcVFpcjFqVjRHNG9hZUc4WDFjOUliZHZLU2dXL1NHVkJQZ0RzRlRPeVRLeWRsdGd5UkxseWJDU3p1RmpIK2xMdy82ZkxwSFc5TllVQmhnSmt5bnRtSmQ0OUxvYXVYaG5QeGhlK25jZW1vM0UzcGs3SzA3Vk5na2E5ZzlISGN1T0JHQmxIdjlndWMxcUpVeGVXWDVOSXhTZVVUKzFUdFVEeVN2SHNFbjczaHRnMmk1TUhiZE9KNlp5dVltcEFMNHpLYnVvdlUzVDdBbmJOb0pIa3JpdFh1MXhPTFQ2REZLbjZSeGhGcFA0NngycEtSNUh0RnYvN1FyVUhUcFhORU9nMzdzY3hJc2svMXhOSTZJcDJHblZocEpOazNxUnlSOXZWZ3Q2MzFTTEp2MGpjaW5leUEyaGxKOWszS1JxUVRIRkQ3SThtK1NkT0lkRkszZmJVanliNUp6WWgwSWdOYTIwaXliOUl4SXAyOHJWN3pTTEp2MGpFaW5iQk5WbzRrK3lZRkk5SkoydDZPakNUN0p1a2owa25hMkU2TkpQc20wU1BTaWZrbGRIWWsyVGZKSFpGT3h1OWhQVWFTZlpQUUVla0VCTFIrSThtK1NlS0l0TzhCcmZkSXNtOFNOeUx0ZFVBYk01THNtMlNOU1B2N0M5bXdrV1RmSkd0RTJ0Tk4yK0NSWk44a2FFVGEwKzNhK0pGazN5UmxSTnJIamVyV1NMSnZFakVpN1YxQTNSMUo5bzMvSTlKKy9YNUNpLy9NNGZqM1pPcUVUQmZSak9BY291WCtwYyt5dXhudjZlMDhEdStScTYrNm1TSkV1cjJoaTNuMG1hbkdvRnpIK0pqODVsVUpMUjRaYUxWaUY2dHduaDFLRFdzd05ORHFHeUtIbHcvZzVtMzU2SyttSi9Rb0k0OENFa0ZQaVBFeC9PMmY1djZMMGlzZnB2RXhHZXBEc3h0M1RlZ3NBVUtEZkJWLytmcmh1N0xyVVh6N01keThoZDZjTHcxNUZCQUFBMXo3d2pTaWh6eGFGTUVYYjh1MkFUUWEzajBtV0MwUjVFSk1GL0hPSDAzcmZSRkFCRVA5NEFxMElnRUcreDdlaEFpc2FiRThKWXdBMW1CNG9LMC9CdDhlLy9rVkVBQW5yYzVjTVgvKy9qb29jWE1CTWIrZWhWSGlNQ0JTWVVDa3dvQkloUUdSQ2dNaUZRWkVLZ3lJVkJnUXFUQWdVbUZBcE9MZGEyRmRFVGxJZlBPR05yNDUvallEcjRjbE5nd0RnakVZSGxqZHkvdnhYWVVMMVhTK3JMc3FtUTVJQk5haTFzQWYvbUh1VHkyMnR3UTVoNzRjVGgrVTNsd2E3clNxa2VtQThHQjY1dU12VFR4SDNNNktZZ3dhRVlZSDhPTm5wYjhIbnIwL1o2TmxQU0E4T0lVRkJrSFE3Z29VUlJqYWxPbUZaeDREQW9ESW9la0EwKzRLMUV6cFpNZ2E4SWtFcVRBZ1VtRkFwTUtBU0lVQmtRb0RJaFVHUkNvTWlGUVlFS2t3SUZKaFFLVENnRWlGQVpFS0F5SVZCa1FxREloVUdCQ3BNQ0JTWVVDa2t0VDNSTS9meUYwVTcyeVBQNXAwemU5dW50OEd6YnZyblNUNzN2dEpEV2pMSmd3UG9FLzMrU01pQ0FPWU5YMDZxVEhZdWdsYkI5Q010QUgxNTdCbDA5cC9RbmNsTmFEUHZ6WmZEYUVlYWU5VWJ5MHFOVFNhcTR2QUdEU2ErTk5YcHI4WFRyZDRTUHlCMUhuVkQrbWlSQVprRE43NzNFU2QrSnlEK0NiZm0zdGgyNXZwd1lQYm5GZnErTldmamV2UU5nUUdtL3ZVUDZnYkVoa1EwT0UxZncwUFFlSlRXSGUzd1FkSkRjaUh3KzNETm5RZG44YVRDZ01pRlFaRUtneUlWQmdRcVRBZ1VtRkFwTUtBU0lVQmtRb0RJaFVHUkNvTWlGUVlFS2t3SUZKaFFLVENnRWlGQVpFS0F5SVZCa1FxREloVUdCQ3BNQ0JTWVVDa3dvQkloUUdSQ2dNaUZRWkVLZ3lJVkJnUXFUQWdVbUZBcE1LQVNJVUJrUW9ESWhVR1JDb01pRlFZRUtrd0lGSmhRS1RDZ0VobDRVYmpJaUp0M3V5Zk1teEpKd3NCQlVFQXdHZytlWVl5UUVUaVZHSmgvRi9XQmp0Mzd3RzRBbEU3akxVMlhvZVdya0JFN1pnL2k0WC8vMTlFN2ZzdnhDdjJNYjJqbDdzQUFBQUFTVVZPUks1Q1lJST0iLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9LCB7InNyYyI6ICJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQWdBQUFBSUFDQUlBQUFCN0drT3RBQUFLZlVsRVFWUjRuTzNYdTNFZFJ4QkFVVWlGU0dqUlVBUUlRVEVvRlZyTWpSSElrS1ZRV0RLZ29pQ0NBTjluUHpOenp6RkpaOTlzVDkvRkwwKy8vL0VBUU0rdlp6OEFBT2NRQUlBb0FRQ0lFZ0NBS0FFQWlCSUFnQ2dCQUloNmZPcy8vdjdyenlPZkE0Q2RmUGo0MncvLzNWOEFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWtEYWwwOWZ6MzRFT0kwQTBQVzgvVFdBTEFFZzZ1WGUxd0NhQklDaTF4dGZBd2dTQUhMZTJ2VWFRSTBBQUVRSkFDM3ZmK2I3STRBVUFTRGtrdjJ1QVhRSUFCV1hiM1lOSUVJQVNMaDJwMnNBQlFMQSttN2I1aHJBOGdTQXhkMnp4eldBdFFrQUs3dC9nMnNBQ3hNQWxyWFY3dFlBVmlVQUFGRUN3SnEyL1d6M1J3QkxFZ0FXdE1lKzFnRFdJd0NzWnI5TnJRRXNSZ0JZeXQ0N1dnTllpUUN3am1PMnN3YXdEQUZnRVVmdVpRMWdEUUxBQ283ZnlCckFBZ1NBNloyMWl6V0EyUWtBUUpRQU1MZHpQOFA5RWNEVUJJQ0pqYkIvUjNnR3VJMEFNS3R4TnU4NFR3SlhFUUNtTk5yT0hlMTU0QklDd0h6RzNMWmpQaFc4UXdDWXpNaDdkdVJuZzljRWdKbU12MkhIZjBMNFJnQ1l4aXk3ZFpibkJBRUFpQklBNWpEWFovVmNUMHVXQURDQkdmZnBqTTlNalFBd3VuazM2YnhQVG9RQU1MVFpkK2pzejgvYUJJQnhyYkU5MS9nVkxFa0FHTlJLZTNPbDM4SktCSUFScmJjeDEvdEZMRUFBR002cXUzTFYzOFc4QkFBZ1NnQVl5OXFmeVd2L09xWWpBQXlrc0I4THY1RlpDQUNqNkd6R3ppOWxjQUxBRUdvN3NmWjdHWk1BY0w3bU5teithb1lpQUp5c3ZBZkx2NTBSQ0FCbnNnR2RBQ2NTQUU1ajl6MXpEcHhGQUFDaUJJQnorT3g5eVdsd0NnSGdCUGJkYTg2RTR3a0FSN1BwM3VKa09KZ0FjQ2c3N24zT2h5TUpBTWV4M1M3aGxEaU1BSEFRZSsxeXpvcGpDQUJIc05HdTVjUTRnQUN3Tzd2c05zNk52UWtBUUpRQXNDK2ZzZmR3ZXV4S0FOaVIvWFUvWjhoK0JJQzkyRnhiY1pMc1JBRFloWjIxTGVmSkhnU0E3ZGxXZTNDcWJFNEEySmc5dFI5bnk3WUVnQzNaVUh0endteElBTmlNM1hRTTU4eFdCQUFnU2dEWWhzL1NJemx0TmlFQWJNQStPcDR6NTM0Q3dMMXNvck00ZWU0a0FOekZEanFYOCtjZUFzRHRiSjhSZUF2Y1RBQzRrYjB6RHUrQzJ3Z0F0N0J4UnVPTmNBTUI0R3AyelppOEY2NGxBQUJSQXNCMWZHYU96TnZoS2dMQUZleVg4WGxIWEU0QXVKVE5NZ3R2aWdzSkFCZXhVK2JpZlhFSkFlRG5iSk1aZVd2OGxBRHdFL2JJdkx3NzNpY0F2TWNHbVowM3lEc0VnRGZaSFd2d0hubUxBQUJFQ1FBLzVyTnhKZDRtUHlRQS9JQjlzUjd2bE5jRWdPL1pGS3Z5WnZtT0FQQS9kc1RhdkY5ZUVnRCtZenNVZU10OEl3RDh5MTdvOEs1NUpnQThQTmdJUGQ0NER3TEFnMTFRNWIwakFBQlJBbERuTTdETTI0OFRnRFQzSHpOUUpnQmRiajdQVEVLV0FFUzU4N3hrSHBvRW9NaHQ1elZURVNRQU9lNDViekViTlFMUTRvYnpQaE9TSWdBaDdqYVhNQ2NkQWdBUUpRQVZQdXU0bkdtSkVJQUU5NWxybVprQ0FWaWZtOHh0VE03eUJHQng3akQzTUQ5ckU0Q1Z1YjNjenhRdFRBQ1c1ZDZ5RmJPMEtnRllreHZMdGt6VWtnUmdRZTRxZXpCWDZ4RUFnQ2dCV0kzUE5QWmp1aFlqQUV0eFA5bWJHVnVKQUt6RHplUVlKbTBaQXJBSWQ1SWptYmMxQ01BSzNFYU9aK29XSUFEVGN3ODVpOW1iblFETXpRM2tYQ1p3YWdJd01YZVBFWmpEZVFrQVFKUUF6TXBuRitNd2paTVNnQ201YjR6R1RNNUlBT2JqcGpFbWt6a2RBWmlNTzhiSXpPZGNCR0FtYmhmak02VVRFWUJwdUZmTXdxek9RZ0RtNEVZeEZ4TTdCUUdZZ0x2RWpNenQrQVFBSUVvQVJ1Y3ppbm1aM3NFSndORGNIMlpuaGtjbUFPTnljMWlEU1I2V0FBektuV0VsNW5sTUFqQWl0NFgxbU9vQkNjQnczQk5XWmJaSEl3QmpjVU5ZbXdrZmlnQU14TjJnd0p5UFF3QUFvZ1JnRkQ2TDZERHRneENBSWJnUDFKajVFUWpBK2R3RW1reis2UVRnWk80QVplYi9YSTluUDBEZDArZURHdXltY2JuRHhwSnplYzBBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFUFY0OWdQQUxaNCtqL1h0OHVYVDE3TWZBYTQyMWkwQzREQUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFQ1VBQUZFQ0FCQWxBQUJSQWdBUUpRQUFVUUlBRUNVQUFGRUNBQkFsQUFCUkFnQVFKUUFBVVFJQUVDVUFBRkVDQUJBbEFBQlJBZ0FRSlFBQVVRSUFFUFY0OWdOd2tLZlBZcjhqeDh1TVRDMUFsQUFBUkFrQVFKUUFBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVRSkFFQ1VBQUJFQ1FCQWxBQUFSQWtBUUpRQUFFUUpBRUNVQUFCRUNRQkFsQUFBUkFrQVFKUUFBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVRSkFFQ1VBQUJFQ1FCQWxBQUFSQWtBUUpRQUFFUUpBRUNVQUFCRUNRQkFsQUFBUkFrQVFKUUFBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVRSkFFQ1VBQUJFQ1FCQWxBQUFSQWtBUUpRQUFFUUpBRUNVQUFCRUNRQkFsQUFBUkFrQVFKUUFBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVRSkFFQ1VBQUJFQ1FCQWxBQUFSQWtBUUpRQUFFUUpBRUNVQUFCRUNRQkFsQUFBUkFrQVFKUUFBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVRSkFFQ1VBQUJFQ1FCQWxBQUFSQWtBUUpRQUFFUUpBRUNVQUFCRUNRQkFsQUFBUkFrQVFKUUFBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVRSkFFQ1VBQUJFQ1FCQWxBQUFSQWtBUUpRQUFFUUpBRUNVQUFCRUNRQkFsQUFBUkFrQVFKUUFBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVRSkFFQ1VBQUJFUGI3MUh4OCsvbmJrY3dCd01IOEJBRVFKQUVDVUFBQkVDUUJBbEFBQVJBa0FRSlFBQUVUOUEwVmdVL3k4VFBkT0FBQUFBRWxGVGtTdVFtQ0MiLCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9XX0=">
+<link rel="icon" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="theme-color" content="#182230">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #EBEDF0;
+    --panel: #FFFFFF;
+    --ink: #1C2530;
+    --ink-soft: #5C6B7A;
+    --line: #CCD3DA;
+    --line-strong: #1C2530;
+    --amber: #DE9F2E;
+    --amber-deep: #B9821F;
+    --brick: #AE4530;
+    --caixa: #1E5AA8;
+    --caixa-deep: #143E7A;
+    --tarp: #3F7A57;
+    --tarp-deep: #2E5C41;
+    --pix: #2DA89A;
+    --cartao: #7A4B8A;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  #obra-root {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100%;
+    padding-bottom: 60px;
+    line-height: 1.4;
+  }
+
+  #obra-root h1, #obra-root h2, #obra-root h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    margin: 0;
+  }
+
+  .num { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    background:
+      linear-gradient(180deg, rgba(24,34,48,0.94), rgba(24,34,48,0.98)),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 24px);
+    color: #EDEFF2;
+    padding: 20px 16px 22px;
+  }
+  .masthead-tag {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #9FB0C2;
+  }
+  .masthead-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 25px;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    width: 100%;
+    color: #fff;
+    padding: 3px 0 0;
+    outline: none;
+  }
+  .masthead-name:focus { border-bottom: 2px solid var(--amber); }
+  .masthead-sub { font-size: 12.5px; color: #B7C3D1; margin-top: 4px; }
+
+  .wrap { padding: 14px 14px 0; }
+
+  /* ---------- section cards ---------- */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong);
+    border-radius: 3px;
+    margin-bottom: 14px;
+    padding: 15px 16px;
+    box-shadow: 0 1px 3px rgba(28,37,48,0.05);
+  }
+  .card.tone-caixa { border-left-color: var(--caixa); }
+  .card.tone-tarp { border-left-color: var(--tarp); }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 13px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid var(--bg);
+  }
+  .card-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot.caixa { background: var(--caixa); }
+  .dot.tarp { background: var(--tarp); }
+
+  .card-head.collapsible { cursor: pointer; }
+  .card-chevron { display: inline-block; transition: transform 0.2s; margin-left: auto; color: var(--ink-soft); font-size: 12px; }
+  .card-body.hidden { display: none; }
+
+  .method-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--bg);
+    font-size: 13px;
+  }
+  .method-row:last-child { border-bottom: none; }
+  .method-name { display: flex; align-items: center; gap: 7px; font-weight: 500; }
+  .method-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .method-amt { font-weight: 600; }
+
+  .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 10px; }
+  .kpi { display: flex; flex-direction: column; min-width: 0; }
+  .kpi-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); font-weight: 600; margin-bottom: 5px; line-height: 1.3; min-height: 27px; word-break: break-word; }
+  .kpi-value { font-size: 19px; font-weight: 600; }
+  .kpi-value.danger { color: var(--brick); }
+  .kpi-value.ok { color: var(--tarp); }
+  .kpi-currency { display: flex; align-items: baseline; gap: 6px; }
+  .kpi-currency .num { font-size: 19px; font-weight: 600; flex-shrink: 0; }
+
+  .section-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+    margin: 22px 2px 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-eyebrow::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .section-eyebrow:first-of-type { margin-top: 4px; }
+
+  .edit-inline {
+    flex: 1;
+    min-width: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 19px;
+    font-weight: 600;
+    border: none;
+    border-bottom: 1px dashed var(--line);
+    background: transparent;
+    color: var(--ink);
+    outline: none;
+    padding: 0 0 2px;
+  }
+  .edit-inline:focus { border-bottom: 1px solid var(--amber); }
+
+  .track { height: 10px; background: var(--bg); border: 1px solid var(--line-strong); overflow: hidden; }
+  .fill { height: 100%; transition: width 0.35s ease; }
+  .fill.caixa { background: repeating-linear-gradient(135deg, var(--caixa), var(--caixa) 7px, var(--caixa-deep) 7px, var(--caixa-deep) 14px); }
+  .fill.tarp { background: repeating-linear-gradient(135deg, var(--tarp), var(--tarp) 7px, var(--tarp-deep) 7px, var(--tarp-deep) 14px); }
+  .fill.over { background: repeating-linear-gradient(135deg, var(--brick), var(--brick) 7px, #7E2F1E 7px, #7E2F1E 14px); }
+  .track-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* mini release ledger inside financing card */
+  .mini-list { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+  .mini-empty { font-size: 12.5px; color: var(--ink-soft); padding: 4px 0; }
+  .mini-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--bg);
+    font-size: 13px;
+    gap: 8px;
+  }
+  .mini-row:last-child { border-bottom: none; }
+  .mini-row .mini-left { min-width: 0; }
+  .mini-row .mini-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-row .mini-date { font-size: 11px; color: var(--ink-soft); }
+  .mini-row .mini-amt { font-weight: 600; white-space: nowrap; }
+  .mini-del { background: none; border: none; color: var(--ink-soft); font-size: 15px; padding: 0 0 0 8px; cursor: pointer; }
+  .mini-del:hover { color: var(--brick); }
+
+  .link-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--caixa);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .add-release-form { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .add-release-form.show { display: block; }
+  .release-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+
+  .field-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-soft);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .f-input, .f-select {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 8px 9px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+  }
+  .f-input:focus, .f-select:focus { border-color: var(--amber); border-width: 2px; padding: 7px 8px; }
+
+  .btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    padding: 9px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-primary:active { background: var(--amber); border-color: var(--amber); color: var(--ink); }
+
+  /* ---------- payment form ---------- */
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  .toggle-2 { display: flex; border: 1px solid var(--line-strong); }
+  .toggle-2 button {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 10px 4px;
+    border: none;
+    border-right: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .toggle-2 button:last-child { border-right: none; }
+
+  .toggle-3 { display: flex; border: 1px solid var(--line-strong); }
+  .toggle-3 button {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 4px;
+    border: none;
+    border-right: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .toggle-3 button:last-child { border-right: none; }
+
+  .sub-block { display: none; }
+  .sub-block.show { display: block; }
+
+  .warn-note {
+    font-size: 11.5px;
+    color: var(--brick);
+    margin-top: 6px;
+    display: none;
+  }
+  .warn-note.show { display: block; }
+
+  /* ---------- category breakdown ---------- */
+  .cat-row { display: grid; grid-template-columns: 92px 1fr 66px; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12.5px; }
+  .cat-row:last-child { margin-bottom: 0; }
+  .cat-chip { width: 9px; height: 9px; display: inline-block; margin-right: 5px; flex-shrink: 0; }
+  .cat-name { display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cat-bar-track { height: 8px; background: var(--bg); border: 1px solid var(--line); }
+  .cat-bar-fill { height: 100%; }
+  .cat-amt { text-align: right; font-weight: 500; }
+
+  /* ---------- ledger ---------- */
+  .filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; -ms-overflow-style: none; scrollbar-width: none; }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 11px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .filter-chip.active { background: var(--ink); color: #fff; }
+
+  .ledger { border: 1px solid var(--line); background: var(--panel); }
+  .ledger-empty { padding: 26px 16px; text-align: center; color: var(--ink-soft); font-size: 13.5px; }
+  .ledger-item { display: grid; grid-template-columns: 3px 1fr auto; border-bottom: 1px solid var(--bg); }
+  .ledger-item:last-child { border-bottom: none; }
+  .ledger-body { padding: 10px 12px; min-width: 0; }
+  .ledger-top { display: flex; justify-content: space-between; gap: 8px; }
+  .ledger-desc { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ledger-amt { font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .ledger-meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .ledger-del { background: none; border: none; color: var(--ink-soft); font-size: 17px; cursor: pointer; padding: 8px 12px; line-height: 1; }
+  .ledger-del:hover { color: var(--brick); }
+
+  @media (min-width: 640px) {
+    .wrap { max-width: 720px; margin: 0 auto; padding: 18px 24px 0; }
+    .masthead { padding: 26px 24px; }
+    .form-grid { grid-template-columns: 2fr 1fr 1fr; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .row-3.full-row { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<div id="obra-root">
+
+  <div class="masthead">
+    <div class="masthead-tag">Controle de obra</div>
+    <input id="projectName" class="masthead-name" value="Minha obra" maxlength="40" />
+    <div class="masthead-sub">Financiamento Caixa + recursos próprios</div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- RESUMO GERAL -->
+    <div class="card" style="border-left-color:var(--amber-deep); background:var(--ink); color:#fff;">
+      <div class="kpi-label" style="color:#B7C3D1; min-height:0; display:block;">Total geral já pago na obra</div>
+      <div id="totalGeral" class="kpi-value num" style="font-size:26px; color:#fff;">R$ 0</div>
+      <div style="font-size:11.5px; color:#9FB0C2; margin-top:2px;">Financiamento + recursos próprios + FGTS + terreno · <span id="totalGeralCount">0</span> lançamentos</div>
+    </div>
+
+    <div class="section-eyebrow">Fontes de recurso</div>
+
+    <!-- FINANCIAMENTO -->
+    <div class="card tone-caixa">
+      <div class="card-head collapsible" data-cardtoggle="body-financ">
+        <div class="card-title"><span class="dot caixa"></span>Financiamento Caixa</div>
+        <span class="card-chevron" id="chev-body-financ">▾</span>
+      </div>
+
+      <div class="card-body" id="body-financ">
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Valor total contratado</div>
+          <div class="kpi-currency">
+            <span class="num">R$</span>
+            <input id="totalContratado" class="edit-inline" inputmode="decimal" value="0,00" />
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Liberado até agora</div>
+          <div id="totalLiberado" class="kpi-value num">R$ 0</div>
+        </div>
+      </div>
+      <div class="track"><div id="contratadoFill" class="fill caixa" style="width:0%"></div></div>
+      <div class="track-label"><span id="contratadoPct">0% liberado</span><span id="contratadoRestante">Falta liberar R$ 0</span></div>
+
+      <div class="kpi-row" style="margin-top:14px;">
+        <div class="kpi">
+          <div class="kpi-label">Pago a fornecedores</div>
+          <div id="totalPagoFinanc" class="kpi-value num">R$ 0</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Saldo disponível</div>
+          <div id="saldoFinanc" class="kpi-value num">R$ 0</div>
+        </div>
+      </div>
+
+      <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
+
+      <div class="add-release-form" id="releaseForm">
+        <div class="release-grid">
+          <div>
+            <label class="field-label">Etapa</label>
+            <input id="releaseLabel" class="f-input" placeholder="Ex: 3ª medição" />
+          </div>
+          <div>
+            <label class="field-label">Valor liberado</label>
+            <input id="releaseAmount" class="f-input" inputmode="decimal" placeholder="0,00" />
+          </div>
+        </div>
+        <div class="release-grid">
+          <div>
+            <label class="field-label">Data</label>
+            <input id="releaseDate" class="f-input" type="date" />
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <button type="button" class="btn btn-primary" id="addReleaseBtn">Registrar liberação</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-list">
+        <div class="field-label" style="margin-bottom:8px;">Liberações registradas</div>
+        <div id="releaseList"></div>
+      </div>
+      </div>
+    </div>
+
+    <!-- RECURSOS PRÓPRIOS -->
+    <div class="card tone-tarp">
+      <div class="card-head collapsible" data-cardtoggle="body-proprio">
+        <div class="card-title"><span class="dot tarp"></span>Recursos próprios</div>
+        <span class="card-chevron" id="chev-body-proprio">▾</span>
+      </div>
+      <div class="card-body" id="body-proprio">
+      <div class="kpi-row" style="margin-bottom:6px;">
+        <div class="kpi">
+          <div class="kpi-label">Total gasto</div>
+          <div id="totalProprio" class="kpi-value num">R$ 0</div>
+        </div>
+      </div>
+      <div id="methodBreakdown"></div>
+      </div>
+    </div>
+
+    <!-- OUTRAS ORIGENS -->
+    <div class="card" style="border-left-color:var(--amber-deep);">
+      <div class="card-head collapsible" data-cardtoggle="body-outras">
+        <div class="card-title"><span class="dot" style="background:var(--amber-deep);"></span>Outras origens</div>
+        <span class="card-chevron" id="chev-body-outras">▾</span>
+      </div>
+      <div class="card-body" id="body-outras">
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Valor usado do FGTS</div>
+          <div class="kpi-currency">
+            <span class="num">R$</span>
+            <input id="fgtsInput" class="edit-inline" inputmode="decimal" value="0,00" />
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Pago no terreno (antes do financ.)</div>
+          <div class="kpi-currency">
+            <span class="num">R$</span>
+            <input id="terrenoInput" class="edit-inline" inputmode="decimal" value="0,00" />
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- VALOR TOTAL DA OBRA COM TERRENO -->
+    <div class="card" style="border-left-color:var(--ink); background:#F3F1EA;">
+      <div class="card-head collapsible" data-cardtoggle="body-totalobra">
+        <div class="card-title">Valor total da obra com terreno</div>
+        <span class="card-chevron" id="chev-body-totalobra">▾</span>
+      </div>
+      <div class="card-body" id="body-totalobra">
+      <div class="mini-row" style="border-bottom:1px dashed var(--line);">
+        <div class="mini-left"><div class="mini-name" style="font-weight:400;">Financiamento contratado</div></div>
+        <span id="totalObraFinanc" class="mini-amt num">R$ 0</span>
+      </div>
+      <div class="mini-row" style="border-bottom:1px dashed var(--line);">
+        <div class="mini-left"><div class="mini-name" style="font-weight:400;">FGTS usado</div></div>
+        <span id="totalObraFgts" class="mini-amt num">R$ 0</span>
+      </div>
+      <div class="mini-row" style="border-bottom:1px solid var(--line-strong);">
+        <div class="mini-left"><div class="mini-name" style="font-weight:400;">Pago no terreno (antes do financ.)</div></div>
+        <span id="totalObraTerreno" class="mini-amt num">R$ 0</span>
+      </div>
+      <div class="mini-row" style="padding-top:9px;">
+        <div class="mini-left"><div class="mini-name" style="font-size:14px;">Total</div></div>
+        <span id="totalObraGeral" class="mini-amt num" style="font-size:19px;">R$ 0</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="section-eyebrow">Movimentações</div>
+
+    <!-- LANÇAR PAGAMENTO -->
+    <div class="card">
+      <div class="section-title">Lançar pagamento a fornecedor</div>
+      <div class="form-grid">
+        <div class="full">
+          <label class="field-label">Fornecedor</label>
+          <input id="supplierInput" class="f-input" placeholder="Ex: Depósito São João" />
+        </div>
+        <div class="row-3 full-row">
+          <div>
+            <label class="field-label">Categoria</label>
+            <select id="catInput" class="f-select">
+              <option value="Materiais">Materiais</option>
+              <option value="Mão de obra">Mão de obra</option>
+              <option value="Equipamentos">Equipamentos</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Licenças/Taxas">Licenças/Taxas</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Valor (R$)</label>
+            <input id="amountInput" class="f-input" inputmode="decimal" placeholder="0,00" />
+          </div>
+          <div>
+            <label class="field-label">Data</label>
+            <input id="dateInput" class="f-input" type="date" />
+          </div>
+        </div>
+        <div class="full">
+          <label class="field-label">Pago com</label>
+          <div class="toggle-2" id="originToggle">
+            <button type="button" data-origin="financiamento">Financiamento Caixa</button>
+            <button type="button" data-origin="proprio">Recurso próprio</button>
+          </div>
+          <div class="warn-note" id="saldoWarn">Isso passa do saldo disponível do financiamento.</div>
+        </div>
+        <div class="full sub-block" id="ownMethodField">
+          <label class="field-label">Forma</label>
+          <div class="toggle-3" id="methodToggle">
+            <button type="button" data-method="Pix">Pix</button>
+            <button type="button" data-method="Cartão de crédito">Cartão de crédito</button>
+          </div>
+        </div>
+        <div class="full sub-block" id="installmentsField">
+          <div class="row-2">
+            <div>
+              <label class="field-label">Parcelado em</label>
+              <input id="installmentsInput" class="f-input" type="number" min="1" max="48" inputmode="numeric" value="1" />
+            </div>
+            <div>
+              <label class="field-label">Valor da parcela</label>
+              <div id="installmentPreview" class="f-input num" style="background:var(--bg); display:flex; align-items:center;">R$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="addExpenseBtn" class="btn btn-primary" style="margin-top:10px;">+ Registrar pagamento</button>
+    </div>
+
+    <!-- CATEGORIAS -->
+    <div class="card" id="catCard" style="display:none;">
+      <div class="section-title">Por categoria</div>
+      <div id="catRows"></div>
+    </div>
+
+    <!-- EXTRATO -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" id="extratoHead">
+      <div class="section-title" style="margin-bottom:0; display:flex; align-items:center; gap:6px;">
+        <span id="extratoChevron" style="display:inline-block; transition:transform 0.2s;">▸</span>
+        Extrato <span id="extratoCount" class="num" style="font-weight:400; color:var(--ink-soft); font-size:12.5px;"></span>
+      </div>
+      <button type="button" id="downloadBtn" class="link-btn">⬇ Baixar CSV</button>
+    </div>
+    <div id="extratoBody" style="display:none;">
+      <div class="filter-row" id="filterRow"></div>
+      <div class="ledger" id="ledger"></div>
+      <div id="editBar" style="display:none; margin-top:8px;">
+        <button type="button" id="cancelEditBtn" class="btn">Cancelar edição</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  const CATS = {
+    "Materiais": "#1E5AA8",
+    "Mão de obra": "#AE4530",
+    "Equipamentos": "#DE9F2E",
+    "Transporte": "#3F7A57",
+    "Licenças/Taxas": "#7A5C43",
+    "Outros": "#8A8778"
+  };
+
+  const STORAGE_KEY = "obra-data-v2";
+  let state = {
+    projectName: "Minha obra",
+    totalContratado: 0,
+    fgtsUsado: 0,
+    terrenoPago: 0,
+    releases: [],   // {id, label, amount, date}
+    expenses: []    // {id, supplier, category, amount, date, origin: 'financiamento'|'proprio', method?: 'Pix'|'Cartão de crédito'}
+  };
+
+  let selectedOrigin = "financiamento";
+  let selectedMethod = "Pix";
+  let activeFilter = "Todas";
+  let releaseFormOpen = false;
+  let editingExpenseId = null;
+  let editingReleaseId = null;
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => "R$ " + (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtNum = (n) => (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+
+  function parseAmount(v) {
+    if (!v) return 0;
+    v = String(v).replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, '');
+    const n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
+  }
+
+  async function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) state = Object.assign(state, JSON.parse(raw));
+    } catch (e) {}
+
+    $('projectName').value = state.projectName || "Minha obra";
+    $('totalContratado').value = state.totalContratado ? fmtNum(state.totalContratado) : "0,00";
+    $('fgtsInput').value = state.fgtsUsado ? fmtNum(state.fgtsUsado) : "0,00";
+    $('terrenoInput').value = state.terrenoPago ? fmtNum(state.terrenoPago) : "0,00";
+    $('releaseDate').value = todayISO();
+    $('dateInput').value = todayISO();
+    setOrigin(selectedOrigin);
+    setMethod(selectedMethod);
+    render();
+  }
+
+  async function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) { console.error("Falha ao salvar", e); }
+  }
+
+  $('projectName').addEventListener('change', () => {
+    state.projectName = $('projectName').value || "Minha obra";
+    save();
+  });
+
+  $('totalContratado').addEventListener('change', () => {
+    state.totalContratado = parseAmount($('totalContratado').value);
+    $('totalContratado').value = state.totalContratado ? fmtNum(state.totalContratado) : "0,00";
+    save();
+    render();
+  });
+
+  $('fgtsInput').addEventListener('change', () => {
+    state.fgtsUsado = parseAmount($('fgtsInput').value);
+    $('fgtsInput').value = state.fgtsUsado ? fmtNum(state.fgtsUsado) : "0,00";
+    save();
+    render();
+  });
+
+  $('terrenoInput').addEventListener('change', () => {
+    state.terrenoPago = parseAmount($('terrenoInput').value);
+    $('terrenoInput').value = state.terrenoPago ? fmtNum(state.terrenoPago) : "0,00";
+    save();
+    render();
+  });
+
+  $('toggleReleaseForm').addEventListener('click', () => {
+    releaseFormOpen = !releaseFormOpen;
+    $('releaseForm').classList.toggle('show', releaseFormOpen);
+    if (!releaseFormOpen) cancelReleaseEdit();
+    $('toggleReleaseForm').textContent = releaseFormOpen ? "− Fechar" : "+ Lançar liberação (etapa)";
+  });
+
+  function startReleaseEdit(r) {
+    editingReleaseId = r.id;
+    $('releaseLabel').value = r.label;
+    $('releaseAmount').value = String(r.amount);
+    $('releaseDate').value = r.date;
+    releaseFormOpen = true;
+    $('releaseForm').classList.add('show');
+    $('toggleReleaseForm').textContent = "− Fechar";
+    $('addReleaseBtn').textContent = "Salvar alterações";
+    $('releaseLabel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelReleaseEdit() {
+    editingReleaseId = null;
+    $('releaseLabel').value = '';
+    $('releaseAmount').value = '';
+    $('releaseDate').value = todayISO();
+    $('addReleaseBtn').textContent = "Registrar liberação";
+  }
+
+  $('addReleaseBtn').addEventListener('click', () => {
+    const label = $('releaseLabel').value.trim() || "Liberação";
+    const amount = parseAmount($('releaseAmount').value);
+    const date = $('releaseDate').value || todayISO();
+    if (amount <= 0) {
+      $('releaseAmount').style.borderColor = 'var(--brick)';
+      return;
+    }
+    $('releaseAmount').style.borderColor = 'var(--line-strong)';
+
+    if (editingReleaseId) {
+      const r = state.releases.find(x => x.id === editingReleaseId);
+      if (r) { r.label = label; r.amount = amount; r.date = date; }
+    } else {
+      state.releases.push({ id: Date.now(), label, amount, date });
+    }
+    save();
+    cancelReleaseEdit();
+    render();
+  });
+
+  function setOrigin(origin) {
+    selectedOrigin = origin;
+    document.querySelectorAll('#originToggle button').forEach(btn => {
+      const active = btn.dataset.origin === origin;
+      btn.classList.toggle('active', active);
+      btn.style.background = active ? (origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)') : '#fff';
+      btn.style.color = active ? '#fff' : 'var(--ink)';
+    });
+    $('ownMethodField').classList.toggle('show', origin === 'proprio');
+    checkSaldoWarning();
+  }
+  document.querySelectorAll('#originToggle button').forEach(btn => {
+    btn.addEventListener('click', () => setOrigin(btn.dataset.origin));
+  });
+
+  function setMethod(m) {
+    selectedMethod = m;
+    document.querySelectorAll('#methodToggle button').forEach(btn => {
+      const active = btn.dataset.method === m;
+      btn.classList.toggle('active', active);
+      btn.style.background = active ? 'var(--tarp)' : '#fff';
+      btn.style.color = active ? '#fff' : 'var(--ink)';
+    });
+    $('installmentsField').classList.toggle('show', m === 'Cartão de crédito');
+    if (m !== 'Cartão de crédito') $('installmentsInput').value = '1';
+    updateInstallmentPreview();
+  }
+  document.querySelectorAll('#methodToggle button').forEach(btn => {
+    btn.addEventListener('click', () => setMethod(btn.dataset.method));
+  });
+
+  function updateInstallmentPreview() {
+    const amount = parseAmount($('amountInput').value);
+    let n = parseInt($('installmentsInput').value, 10);
+    if (!n || n < 1) n = 1;
+    $('installmentPreview').textContent = fmt(amount / n);
+  }
+  $('installmentsInput').addEventListener('input', updateInstallmentPreview);
+
+  function saldoFinanc() {
+    const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
+    const pago = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
+    return liberado - pago;
+  }
+
+  function checkSaldoWarning() {
+    const amount = parseAmount($('amountInput').value);
+    const show = selectedOrigin === 'financiamento' && amount > 0 && amount > saldoFinanc();
+    $('saldoWarn').classList.toggle('show', show);
+    updateInstallmentPreview();
+  }
+  $('amountInput').addEventListener('input', checkSaldoWarning);
+
+  function startExpenseEdit(e) {
+    editingExpenseId = e.id;
+    $('supplierInput').value = e.supplier;
+    $('catInput').value = e.category;
+    $('amountInput').value = String(e.amount);
+    $('dateInput').value = e.date;
+    setOrigin(e.origin);
+    if (e.origin === 'proprio') setMethod(e.method || 'Pix');
+    $('installmentsInput').value = String(e.installments || 1);
+    updateInstallmentPreview();
+    $('addExpenseBtn').textContent = "Salvar alterações";
+    $('editBar').style.display = 'block';
+    document.querySelector('.section-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelExpenseEdit() {
+    editingExpenseId = null;
+    $('supplierInput').value = '';
+    $('amountInput').value = '';
+    $('dateInput').value = todayISO();
+    $('installmentsInput').value = '1';
+    $('saldoWarn').classList.remove('show');
+    updateInstallmentPreview();
+    $('addExpenseBtn').textContent = "+ Registrar pagamento";
+    $('editBar').style.display = 'none';
+  }
+  $('cancelEditBtn').addEventListener('click', cancelExpenseEdit);
+
+  $('addExpenseBtn').addEventListener('click', () => {
+    const supplier = $('supplierInput').value.trim();
+    const category = $('catInput').value;
+    const amount = parseAmount($('amountInput').value);
+    const date = $('dateInput').value || todayISO();
+
+    let ok = true;
+    if (!supplier) { $('supplierInput').style.borderColor = 'var(--brick)'; ok = false; }
+    else { $('supplierInput').style.borderColor = 'var(--line-strong)'; }
+    if (amount <= 0) { $('amountInput').style.borderColor = 'var(--brick)'; ok = false; }
+    else { $('amountInput').style.borderColor = 'var(--line-strong)'; }
+    if (!ok) return;
+
+    const installments = (selectedOrigin === 'proprio' && selectedMethod === 'Cartão de crédito')
+      ? (parseInt($('installmentsInput').value, 10) || 1)
+      : null;
+
+    if (editingExpenseId) {
+      const ex = state.expenses.find(x => x.id === editingExpenseId);
+      if (ex) {
+        ex.supplier = supplier; ex.category = category; ex.amount = amount; ex.date = date;
+        ex.origin = selectedOrigin;
+        ex.method = selectedOrigin === 'proprio' ? selectedMethod : null;
+        ex.installments = installments;
+      }
+    } else {
+      state.expenses.push({
+        id: Date.now(), supplier, category, amount, date,
+        origin: selectedOrigin,
+        method: selectedOrigin === 'proprio' ? selectedMethod : null,
+        installments
+      });
+    }
+    save();
+    cancelExpenseEdit();
+    render();
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function render() {
+    const totalLancamentos = state.releases.length + state.expenses.length;
+    $('extratoCount').textContent = totalLancamentos ? `(${totalLancamentos})` : '';
+
+    // ---- resumo geral ----
+    const totalGeral = state.expenses.reduce((s, e) => s + e.amount, 0) + (state.fgtsUsado || 0) + (state.terrenoPago || 0);
+    $('totalGeral').textContent = fmt(totalGeral);
+    $('totalGeralCount').textContent = String(state.expenses.length);
+
+    // ---- valor total da obra com terreno ----
+    const financContratado = state.totalContratado || 0;
+    const fgts = state.fgtsUsado || 0;
+    const terreno = state.terrenoPago || 0;
+    $('totalObraFinanc').textContent = fmt(financContratado);
+    $('totalObraFgts').textContent = fmt(fgts);
+    $('totalObraTerreno').textContent = fmt(terreno);
+    $('totalObraGeral').textContent = fmt(financContratado + fgts + terreno);
+
+    // ---- financiamento ----
+    const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
+    const contratado = state.totalContratado || 0;
+    const pagoFinanc = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
+    const saldo = liberado - pagoFinanc;
+
+    $('totalLiberado').textContent = fmt(liberado);
+    const pct = contratado > 0 ? Math.min(999, Math.round((liberado / contratado) * 100)) : 0;
+    $('contratadoPct').textContent = pct + '% liberado';
+    $('contratadoRestante').textContent = 'Falta liberar ' + fmt(Math.max(0, contratado - liberado));
+    $('contratadoFill').style.width = Math.min(100, pct) + '%';
+
+    $('totalPagoFinanc').textContent = fmt(pagoFinanc);
+    const saldoEl = $('saldoFinanc');
+    saldoEl.textContent = fmt(saldo);
+    saldoEl.className = 'kpi-value num ' + (saldo < 0 ? 'danger' : 'ok');
+
+    // release list
+    const relEl = $('releaseList');
+    if (state.releases.length === 0) {
+      relEl.innerHTML = '<div class="mini-empty">Nenhuma liberação lançada ainda.</div>';
+    } else {
+      const sorted = state.releases.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
+      relEl.innerHTML = sorted.map(r => {
+        const d = r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+        return `<div class="mini-row" data-relrow="${r.id}" style="cursor:pointer;">
+          <div class="mini-left">
+            <div class="mini-name">${escapeHtml(r.label)}</div>
+            <div class="mini-date">${d}</div>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <span class="mini-amt num">${fmt(r.amount)}</span>
+            <button class="mini-del" data-relid="${r.id}" title="Remover">×</button>
+          </div>
+        </div>`;
+      }).join('');
+      relEl.querySelectorAll('.mini-row').forEach(row => {
+        row.addEventListener('click', (ev) => {
+          if (ev.target.closest('.mini-del')) return;
+          const r = state.releases.find(x => String(x.id) === row.dataset.relrow);
+          if (r) startReleaseEdit(r);
+        });
+      });
+      relEl.querySelectorAll('.mini-del').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const r = state.releases.find(x => String(x.id) === btn.dataset.relid);
+          const label = r ? `a liberação "${r.label}" (${fmt(r.amount)})` : 'essa liberação';
+          if (!confirm(`Excluir ${label}? Essa ação não pode ser desfeita.`)) return;
+          if (editingReleaseId === Number(btn.dataset.relid)) cancelReleaseEdit();
+          state.releases = state.releases.filter(r => String(r.id) !== btn.dataset.relid);
+          save();
+          render();
+        });
+      });
+    }
+
+    // ---- recursos próprios ----
+    const ownExpenses = state.expenses.filter(e => e.origin === 'proprio');
+    const totalProprio = ownExpenses.reduce((s, e) => s + e.amount, 0);
+    const pixExpenses = ownExpenses.filter(e => e.method === 'Pix');
+    const cartaoExpenses = ownExpenses.filter(e => e.method === 'Cartão de crédito');
+    const pix = pixExpenses.reduce((s, e) => s + e.amount, 0);
+    const cartao = cartaoExpenses.reduce((s, e) => s + e.amount, 0);
+    $('totalProprio').textContent = fmt(totalProprio);
+
+    const cartaoParcelado = cartaoExpenses.filter(e => e.installments > 1).length;
+    $('methodBreakdown').innerHTML = `
+      <div class="method-row">
+        <div class="method-name"><span class="method-dot" style="background:var(--pix);"></span>Pix</div>
+        <span class="method-amt num">${fmt(pix)}</span>
+      </div>
+      <div class="method-row">
+        <div class="method-name"><span class="method-dot" style="background:var(--cartao);"></span>Cartão de crédito${cartaoParcelado ? ` <span style="color:var(--ink-soft); font-weight:400;">(${cartaoParcelado} parcelado${cartaoParcelado > 1 ? 's' : ''})</span>` : ''}</div>
+        <span class="method-amt num">${fmt(cartao)}</span>
+      </div>`;
+
+    checkSaldoWarning();
+
+    // ---- category breakdown ----
+    const byCat = {};
+    state.expenses.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + e.amount; });
+    const catKeys = Object.keys(byCat).sort((a, b) => byCat[b] - byCat[a]);
+    $('catCard').style.display = catKeys.length ? '' : 'none';
+    if (catKeys.length) {
+      const max = Math.max(...catKeys.map(k => byCat[k]));
+      $('catRows').innerHTML = catKeys.map(k => `
+        <div class="cat-row">
+          <div class="cat-name"><span class="cat-chip" style="background:${CATS[k] || '#999'}"></span>${k}</div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(byCat[k]/max*100)}%;background:${CATS[k] || '#999'}"></div></div>
+          <div class="cat-amt num">${fmt(byCat[k])}</div>
+        </div>`).join('');
+    }
+
+    // ---- filters ----
+    const filterOptions = ["Todas", "Financiamento Caixa", "Pix", "Cartão de crédito"]
+      .filter(f => f === 'Todas' ||
+        (f === 'Financiamento Caixa' && state.expenses.some(e => e.origin === 'financiamento')) ||
+        state.expenses.some(e => e.origin === 'proprio' && e.method === f));
+    $('filterRow').innerHTML = filterOptions.map(f =>
+      `<button class="filter-chip ${f === activeFilter ? 'active' : ''}" data-filter="${f}">${f}</button>`
+    ).join('');
+    $('filterRow').querySelectorAll('.filter-chip').forEach(btn => {
+      btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; render(); });
+    });
+
+    // ---- ledger ----
+    const list = state.expenses
+      .filter(e => {
+        if (activeFilter === 'Todas') return true;
+        if (activeFilter === 'Financiamento Caixa') return e.origin === 'financiamento';
+        return e.origin === 'proprio' && e.method === activeFilter;
+      })
+      .slice()
+      .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
+
+    const ledgerEl = $('ledger');
+    if (list.length === 0) {
+      ledgerEl.innerHTML = '<div class="ledger-empty">Nenhum pagamento lançado ainda.</div>';
+    } else {
+      ledgerEl.innerHTML = list.map(e => {
+        const d = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+        const stripeColor = e.origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)';
+        const originLabel = e.origin === 'financiamento' ? 'Financiamento Caixa' :
+          (e.method === 'Cartão de crédito' && e.installments > 1
+            ? `Cartão · ${e.installments}x de ${fmt(e.amount / e.installments)}`
+            : e.method);
+        return `<div class="ledger-item" data-exprow="${e.id}" style="cursor:pointer;">
+          <div style="background:${stripeColor}"></div>
+          <div class="ledger-body">
+            <div class="ledger-top">
+              <div class="ledger-desc">${escapeHtml(e.supplier)}</div>
+              <div class="ledger-amt num">${fmt(e.amount)}</div>
+            </div>
+            <div class="ledger-meta"><span>${e.category}</span><span>${d}</span><span>${originLabel}</span></div>
+          </div>
+          <button class="ledger-del" data-id="${e.id}" title="Remover">×</button>
+        </div>`;
+      }).join('');
+      ledgerEl.querySelectorAll('.ledger-item').forEach(row => {
+        row.addEventListener('click', (ev) => {
+          if (ev.target.closest('.ledger-del')) return;
+          const e = state.expenses.find(x => String(x.id) === row.dataset.exprow);
+          if (e) startExpenseEdit(e);
+        });
+      });
+      ledgerEl.querySelectorAll('.ledger-del').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const e = state.expenses.find(x => String(x.id) === btn.dataset.id);
+          const label = e ? `o pagamento a "${e.supplier}" (${fmt(e.amount)})` : 'esse pagamento';
+          if (!confirm(`Excluir ${label}? Essa ação não pode ser desfeita.`)) return;
+          if (editingExpenseId === Number(btn.dataset.id)) cancelExpenseEdit();
+          state.expenses = state.expenses.filter(e => String(e.id) !== btn.dataset.id);
+          save();
+          render();
+        });
+      });
+    }
+  }
+
+  load();
+})();
+
+function downloadCSV() {
+  const data = JSON.parse(localStorage.getItem("obra-data-v2") || "{}");
+  const dataRows = [];
+
+  (data.releases || []).forEach(r => {
+    dataRows.push([r.date || '', 'Liberação', r.label || '', '', 'Financiamento Caixa', '', String(r.amount).replace('.', ',')]);
+  });
+  (data.expenses || []).forEach(e => {
+    const origem = e.origin === 'financiamento' ? 'Financiamento Caixa' : e.method;
+    dataRows.push([
+      e.date || '', 'Pagamento', e.supplier || '', e.category || '', origem || '',
+      e.installments ? String(e.installments) + 'x' : '', String(e.amount).replace('.', ',')
+    ]);
+  });
+
+  dataRows.sort((a, b) => (a[0] || '').localeCompare(b[0] || ''));
+
+  if (data.fgtsUsado) {
+    dataRows.push(['', 'FGTS', 'Valor usado do FGTS', '', 'FGTS', '', String(data.fgtsUsado).replace('.', ',')]);
+  }
+  if (data.terrenoPago) {
+    dataRows.push(['', 'Terreno', 'Pago no terreno (antes do financiamento)', '', 'Recurso próprio', '', String(data.terrenoPago).replace('.', ',')]);
+  }
+
+  const rows = [["Data", "Tipo", "Descrição", "Categoria", "Origem/Forma", "Parcelas", "Valor"], ...dataRows];
+
+  const csv = rows.map(row =>
+    row.map(cell => {
+      const s = String(cell ?? '');
+      return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(';')
+  ).join('\r\n');
+
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `controle-obra-lancamentos-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+document.getElementById('downloadBtn').addEventListener('click', (ev) => {
+  ev.stopPropagation();
+  downloadCSV();
+});
+
+let extratoOpen = false;
+document.getElementById('extratoHead').addEventListener('click', () => {
+  extratoOpen = !extratoOpen;
+  document.getElementById('extratoBody').style.display = extratoOpen ? 'block' : 'none';
+  document.getElementById('extratoChevron').style.transform = extratoOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+});
+
+document.querySelectorAll('[data-cardtoggle]').forEach(head => {
+  head.addEventListener('click', () => {
+    const id = head.dataset.cardtoggle;
+    const body = document.getElementById(id);
+    const chev = document.getElementById('chev-' + id);
+    const nowHidden = body.classList.toggle('hidden');
+    chev.style.transform = nowHidden ? 'rotate(-90deg)' : 'rotate(0deg)';
+  });
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
