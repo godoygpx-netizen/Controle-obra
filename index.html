@@ -97,7 +97,7 @@
 
   .card-head {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 13px;
     padding-bottom: 11px;
@@ -116,6 +116,16 @@
 
   .card-head.collapsible { cursor: pointer; }
   .card-chevron { display: inline-block; transition: transform 0.2s; margin-left: auto; color: var(--ink-soft); font-size: 12px; }
+  .card-grip { color: var(--line); font-size: 15px; margin-right: 6px; letter-spacing: -1px; user-select: none; -webkit-user-select: none; }
+  #cardsContainer .card-head[data-cardtoggle] { touch-action: none; }
+  #cardsContainer .card.dragging {
+    opacity: 0.9;
+    box-shadow: 0 8px 20px rgba(28,37,48,0.22);
+    transform: scale(1.015);
+    position: relative;
+    z-index: 20;
+  }
+  #cardsContainer .card.dragging .card-grip { color: var(--amber); }
   .card-body.hidden { display: none; }
 
   .method-row {
@@ -365,9 +375,12 @@
 
     <div class="section-eyebrow">Fontes de recurso</div>
 
+    <div id="cardsContainer">
+
     <!-- FINANCIAMENTO -->
-    <div class="card tone-caixa">
+    <div class="card tone-caixa" data-cardid="financ">
       <div class="card-head collapsible" data-cardtoggle="body-financ">
+        <span class="card-grip">⠿</span>
         <div class="card-title"><span class="dot caixa"></span>Financiamento Caixa</div>
         <span class="card-chevron" id="chev-body-financ">▾</span>
       </div>
@@ -452,8 +465,9 @@
     </div>
 
     <!-- RECURSOS PRÓPRIOS -->
-    <div class="card tone-tarp">
+    <div class="card tone-tarp" data-cardid="proprio">
       <div class="card-head collapsible" data-cardtoggle="body-proprio">
+        <span class="card-grip">⠿</span>
         <div class="card-title"><span class="dot tarp"></span>Recursos próprios</div>
         <span class="card-chevron" id="chev-body-proprio">▾</span>
       </div>
@@ -469,8 +483,9 @@
     </div>
 
     <!-- OUTRAS ORIGENS -->
-    <div class="card" style="border-left-color:var(--amber-deep);">
+    <div class="card" style="border-left-color:var(--amber-deep);" data-cardid="outras">
       <div class="card-head collapsible" data-cardtoggle="body-outras">
+        <span class="card-grip">⠿</span>
         <div class="card-title"><span class="dot" style="background:var(--amber-deep);"></span>Outras origens</div>
         <span class="card-chevron" id="chev-body-outras">▾</span>
       </div>
@@ -495,8 +510,9 @@
     </div>
 
     <!-- VALOR TOTAL DA OBRA COM TERRENO -->
-    <div class="card" style="border-left-color:var(--ink); background:#F3F1EA;">
+    <div class="card" style="border-left-color:var(--ink); background:#F3F1EA;" data-cardid="totalobra">
       <div class="card-head collapsible" data-cardtoggle="body-totalobra">
+        <span class="card-grip">⠿</span>
         <div class="card-title">Valor total da obra com terreno</div>
         <span class="card-chevron" id="chev-body-totalobra">▾</span>
       </div>
@@ -518,6 +534,8 @@
         <span id="totalObraGeral" class="mini-amt num" style="font-size:19px;">R$ 0</span>
       </div>
       </div>
+    </div>
+
     </div>
 
     <div class="section-eyebrow">Movimentações</div>
@@ -630,6 +648,7 @@
     totalContratado: 0,
     fgtsUsado: 0,
     terrenoPago: 0,
+    cardOrder: ["financ", "proprio", "outras", "totalobra"],
     releases: [],   // {id, label, amount, date}
     expenses: []    // {id, supplier, category, amount, date, origin: 'financiamento'|'proprio', method?: 'Pix'|'Cartão de crédito'}
   };
@@ -666,11 +685,101 @@
     $('releaseDate').value = todayISO();
     $('dateInput').value = todayISO();
     $('faturaMonthInput').value = nextPendingMonth();
+    applyCardOrder();
+    setupCardReorder();
     setOrigin(selectedOrigin);
     setMethod(selectedMethod);
     render();
     autoBackupIfNeeded();
   }
+
+  // Repositions the four resource cards to match the saved order (moving
+  // existing DOM nodes keeps their listeners and open/closed state intact).
+  function applyCardOrder() {
+    const container = $('cardsContainer');
+    const order = Array.isArray(state.cardOrder) && state.cardOrder.length
+      ? state.cardOrder
+      : ["financ", "proprio", "outras", "totalobra"];
+    order.forEach(id => {
+      const el = container.querySelector(`[data-cardid="${id}"]`);
+      if (el) container.appendChild(el);
+    });
+  }
+
+  // Press-and-hold on a card header to reorder it among its siblings.
+  // A quick tap still toggles the card open/closed as before; only a
+  // sustained hold (with little movement) activates drag mode.
+  function setupCardReorder() {
+    const container = $('cardsContainer');
+    const HOLD_MS = 500;
+    const MOVE_CANCEL_PX = 12;
+    let pressTimer = null;
+    let dragging = false;
+    let draggedCard = null;
+    let startX = 0, startY = 0;
+
+    function clearPress() {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    }
+
+    function reorderDuringDrag(pointerY) {
+      const siblings = Array.from(container.children).filter(el => el !== draggedCard);
+      for (const sib of siblings) {
+        const rect = sib.getBoundingClientRect();
+        const mid = rect.top + rect.height / 2;
+        if (pointerY < mid) {
+          container.insertBefore(draggedCard, sib);
+          return;
+        }
+      }
+      container.appendChild(draggedCard);
+    }
+
+    container.querySelectorAll('.card-head[data-cardtoggle]').forEach(head => {
+      head.addEventListener('pointerdown', (ev) => {
+        if (ev.target.closest('input, select, button, textarea')) return;
+        const card = head.closest('.card');
+        startX = ev.clientX; startY = ev.clientY;
+        clearPress();
+        pressTimer = setTimeout(() => {
+          dragging = true;
+          draggedCard = card;
+          card.classList.add('dragging');
+          head.style.touchAction = 'none';
+          try { head.setPointerCapture(ev.pointerId); } catch (e) {}
+        }, HOLD_MS);
+      });
+
+      head.addEventListener('pointermove', (ev) => {
+        if (dragging) {
+          ev.preventDefault();
+          reorderDuringDrag(ev.clientY);
+          return;
+        }
+        if (pressTimer && (Math.abs(ev.clientX - startX) > MOVE_CANCEL_PX || Math.abs(ev.clientY - startY) > MOVE_CANCEL_PX)) {
+          clearPress();
+        }
+      });
+
+      function finishDrag(ev) {
+        clearPress();
+        if (dragging) {
+          dragging = false;
+          head.style.touchAction = '';
+          if (draggedCard) draggedCard.classList.remove('dragging');
+          try { head.releasePointerCapture(ev.pointerId); } catch (e) {}
+          state.cardOrder = Array.from(container.children).map(el => el.dataset.cardid);
+          save();
+          window.suppressNextCardClick = true;
+          draggedCard = null;
+        }
+      }
+      head.addEventListener('pointerup', finishDrag);
+      head.addEventListener('pointercancel', finishDrag);
+    });
+  }
+
+  window.suppressNextCardClick = false;
 
   async function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -1406,6 +1515,7 @@ document.getElementById('extratoHead').addEventListener('click', () => {
 
 document.querySelectorAll('[data-cardtoggle]').forEach(head => {
   head.addEventListener('click', () => {
+    if (window.suppressNextCardClick) { window.suppressNextCardClick = false; return; }
     const id = head.dataset.cardtoggle;
     const body = document.getElementById(id);
     const chev = document.getElementById('chev-' + id);
