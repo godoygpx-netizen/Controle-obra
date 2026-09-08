@@ -665,7 +665,7 @@
     $('terrenoInput').value = state.terrenoPago ? fmtNum(state.terrenoPago) : "0,00";
     $('releaseDate').value = todayISO();
     $('dateInput').value = todayISO();
-    $('faturaMonthInput').value = todayISO().slice(0, 7);
+    $('faturaMonthInput').value = nextPendingMonth();
     setOrigin(selectedOrigin);
     setMethod(selectedMethod);
     render();
@@ -994,6 +994,23 @@
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  // Finds the earliest month (YYYY-MM) that still has an unpaid card
+  // installment due. Falls back to the current month when everything
+  // is already paid up (or there are no card purchases at all).
+  function nextPendingMonth() {
+    let earliest = null;
+    state.expenses.forEach(e => {
+      if (e.method !== 'Cartão de crédito') return;
+      getInstallmentSchedule(e).forEach(p => {
+        if (!p.paid) {
+          const m = p.dueDate.slice(0, 7);
+          if (!earliest || m < earliest) earliest = m;
+        }
+      });
+    });
+    return earliest || todayISO().slice(0, 7);
+  }
+
   function updateFaturaMonthPreview() {
     const month = $('faturaMonthInput').value;
     const previewEl = $('faturaMonthPreview');
@@ -1041,6 +1058,7 @@
       return;
     }
     save();
+    $('faturaMonthInput').value = nextPendingMonth();
     render();
   });
 
