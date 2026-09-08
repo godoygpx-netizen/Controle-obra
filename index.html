@@ -1177,9 +1177,10 @@
     }
 
     // ---- filters ----
-    const filterOptions = ["Todas", "Financiamento Caixa", "Pix", "Cartão de crédito"]
+    const filterOptions = ["Todas", "Financiamento Caixa", "Recurso próprio", "Pix", "Cartão de crédito"]
       .filter(f => f === 'Todas' ||
         (f === 'Financiamento Caixa' && state.expenses.some(e => e.origin === 'financiamento')) ||
+        (f === 'Recurso próprio' && state.expenses.some(e => e.origin === 'proprio')) ||
         state.expenses.some(e => e.origin === 'proprio' && e.method === f));
     $('filterRow').innerHTML = filterOptions.map(f =>
       `<button class="filter-chip ${f === activeFilter ? 'active' : ''}" data-filter="${f}">${f}</button>`
@@ -1193,6 +1194,7 @@
       .filter(e => {
         if (activeFilter === 'Todas') return true;
         if (activeFilter === 'Financiamento Caixa') return e.origin === 'financiamento';
+        if (activeFilter === 'Recurso próprio') return e.origin === 'proprio';
         return e.origin === 'proprio' && e.method === activeFilter;
       })
       .slice()
