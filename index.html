@@ -399,10 +399,6 @@
           <div id="saldoFinanc" class="kpi-value num">R$ 0</div>
         </div>
       </div>
-      <div id="saldoAposParcelasWrap" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); font-size:12px; color:var(--ink-soft); justify-content:space-between;">
-        <span>Saldo após parcelas do cartão deste mês</span>
-        <span id="saldoAposParcelas" class="num" style="font-weight:600;">R$ 0</span>
-      </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
 
@@ -953,16 +949,15 @@
     return arr;
   }
 
-  function firstOfMonthPlus(iso, n) {
+  function addMonths(iso, n) {
     const d = new Date(iso + 'T00:00:00');
-    d.setDate(1);
+    const day = d.getDate();
     d.setMonth(d.getMonth() + n);
+    if (d.getDate() < day) d.setDate(0);
     return d.toISOString().slice(0, 10);
   }
 
   // Builds the per-installment due-date schedule for a card purchase.
-  // Every installment falls on the 1st of a month, starting the month after
-  // the purchase — the exact purchase day doesn't matter for the due date.
   // Last installment absorbs the rounding remainder so the sum matches the total.
   function getInstallmentSchedule(e) {
     const n = e.installments || 1;
@@ -973,7 +968,7 @@
       const value = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
       schedule.push({
         index: i,
-        dueDate: firstOfMonthPlus(e.date, i + 1),
+        dueDate: addMonths(e.date, i),
         value,
         paid: !!(e.paidInstallments && e.paidInstallments[i])
       });
@@ -1097,17 +1092,6 @@
     $('parcelasPendente').textContent = fmt(totalPendente);
     $('parcelasMes').textContent = fmt(totalMes);
     $('parcelasCard').style.display = allInstallments.length ? '' : 'none';
-
-    const wrapEl = $('saldoAposParcelasWrap');
-    if (totalMes > 0) {
-      wrapEl.style.display = 'flex';
-      const saldoDepois = saldo - totalMes;
-      const spanEl = $('saldoAposParcelas');
-      spanEl.textContent = fmt(saldoDepois);
-      spanEl.style.color = saldoDepois < 0 ? 'var(--brick)' : 'var(--ink)';
-    } else {
-      wrapEl.style.display = 'none';
-    }
 
     const parcelasEl = $('parcelasList');
     if (pending.length === 0) {
