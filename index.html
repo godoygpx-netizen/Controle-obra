@@ -1132,6 +1132,9 @@
   // Finds the earliest month that isn't fully covered yet by a registered
   // fatura payment — i.e., total card installments due that month exceed
   // what's registered in state.faturaPayments for it.
+  // Finds the earliest month with card installments due that has no
+  // fatura payment registered yet — matching the same "any registration
+  // counts as paid" rule used for the per-installment "✓ paga" badge.
   function nextPendingMonth() {
     const dueByMonth = {};
     state.expenses.forEach(e => {
@@ -1141,12 +1144,11 @@
         dueByMonth[m] = (dueByMonth[m] || 0) + p.value;
       });
     });
-    const paidByMonth = {};
-    state.faturaPayments.forEach(f => { paidByMonth[f.month] = (paidByMonth[f.month] || 0) + f.amount; });
+    const paidMonths = new Set(state.faturaPayments.map(f => f.month));
 
     const months = Object.keys(dueByMonth).sort();
     for (const m of months) {
-      if ((paidByMonth[m] || 0) < dueByMonth[m] - 0.01) return m;
+      if (!paidMonths.has(m)) return m;
     }
     return todayISO().slice(0, 7);
   }
