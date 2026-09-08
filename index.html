@@ -399,9 +399,15 @@
           <div id="saldoFinanc" class="kpi-value num">R$ 0</div>
         </div>
       </div>
-      <div id="saldoAposParcelasWrap" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); font-size:12px; color:var(--ink-soft); justify-content:space-between;">
-        <span>Saldo após parcelas do cartão deste mês</span>
-        <span id="saldoAposParcelas" class="num" style="font-weight:600;">R$ 0</span>
+      <div id="saldoAposParcelasWrap" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);">
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--cartao); font-weight:600; margin-bottom:4px;">
+          <span>Parcelas do cartão vencendo este mês</span>
+          <span id="parcelasDoMes" class="num">R$ 0</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft);">
+          <span>Saldo do financiamento após reservar esse valor</span>
+          <span id="saldoAposParcelas" class="num" style="font-weight:600;">R$ 0</span>
+        </div>
       </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
@@ -932,6 +938,15 @@
     return arr;
   }
 
+  // Given a purchase date, returns how many months ahead the first
+  // installment falls: if bought on day 25 or later, it misses the current
+  // billing cycle and rolls to the one after (2 months ahead); otherwise it
+  // lands in the very next cycle (1 month ahead).
+  function firstInstallmentOffset(iso) {
+    const day = new Date(iso + 'T00:00:00').getDate();
+    return day >= 25 ? 2 : 1;
+  }
+
   function firstOfMonthPlus(iso, n) {
     const d = new Date(iso + 'T00:00:00');
     d.setDate(1);
@@ -940,18 +955,19 @@
   }
 
   // Builds the per-installment due-date schedule for a card purchase.
-  // Every installment falls on the 1st of a month, starting the month after
-  // the purchase — the exact purchase day doesn't matter for the due date.
-  // Paid/unpaid is set manually by the person, per installment.
+  // Every installment falls on the 1st of a month. Purchases on day 25+
+  // miss that month's closing and start one cycle later (see
+  // firstInstallmentOffset). Paid/unpaid is set manually, per installment.
   // Last installment absorbs the rounding remainder so the sum matches the total.
   function getInstallmentSchedule(e) {
     const n = e.installments || 1;
     const base = Math.floor((e.amount / n) * 100) / 100;
     const remainder = Math.round((e.amount - base * n) * 100) / 100;
+    const startOffset = firstInstallmentOffset(e.date);
     const schedule = [];
     for (let i = 0; i < n; i++) {
       const value = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
-      const dueDate = firstOfMonthPlus(e.date, i + 1);
+      const dueDate = firstOfMonthPlus(e.date, startOffset + i);
       schedule.push({ index: i, dueDate, value, paid: !!(e.paidInstallments && e.paidInstallments[i]) });
     }
     return schedule;
@@ -1072,7 +1088,8 @@
 
     const wrapEl = $('saldoAposParcelasWrap');
     if (totalMes > 0) {
-      wrapEl.style.display = 'flex';
+      wrapEl.style.display = 'block';
+      $('parcelasDoMes').textContent = fmt(totalMes);
       const saldoDepois = saldo - totalMes;
       const spanEl = $('saldoAposParcelas');
       spanEl.textContent = fmt(saldoDepois);
