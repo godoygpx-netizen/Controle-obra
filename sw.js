@@ -1,9 +1,6 @@
-const CACHE_NAME = "controle-obra-v2";
+const CACHE_NAME = "controle-obra-v16";
 const ASSETS = [
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./index.html"
 ];
 
 self.addEventListener("install", (event) => {
@@ -23,7 +20,7 @@ self.addEventListener("activate", (event) => {
 });
 
 // Network-first: always try to fetch the latest version. Only fall back
-// to the cached copy when there's no connection (offline use at the site).
+// to the cached copy when there's no connection.
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)

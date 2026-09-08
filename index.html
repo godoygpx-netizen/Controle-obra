@@ -584,6 +584,12 @@
       </div>
     </div>
 
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-size:11.5px; color:var(--ink-soft);">
+      <span id="backupStatus">Backup automático: —</span>
+      <button type="button" id="restoreBtn" class="link-btn">Restaurar backup</button>
+      <input type="file" id="restoreFile" accept="application/json" style="display:none;" />
+    </div>
+
   </div>
 </div>
 
@@ -642,12 +648,75 @@
     setOrigin(selectedOrigin);
     setMethod(selectedMethod);
     render();
+    autoBackupIfNeeded();
   }
 
   async function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     catch (e) { console.error("Falha ao salvar", e); }
   }
+
+  const BACKUP_KEY = "obra-data-v2-last-backup";
+
+  function doBackupDownload() {
+    const payload = JSON.stringify({ ...state, _backupDate: new Date().toISOString() }, null, 2);
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = todayISO();
+    a.href = url;
+    a.download = `controle-obra-backup-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    localStorage.setItem(BACKUP_KEY, stamp);
+    updateBackupStatus(stamp);
+  }
+
+  function autoBackupIfNeeded() {
+    const today = todayISO();
+    const last = localStorage.getItem(BACKUP_KEY);
+    if (last === today) { updateBackupStatus(last); return; }
+    // only backup if there's something worth saving
+    if (!state.expenses.length && !state.releases.length && !state.totalContratado) {
+      updateBackupStatus(last || null);
+      return;
+    }
+    doBackupDownload();
+  }
+
+  function updateBackupStatus(dateStr) {
+    const el = $('backupStatus');
+    if (!el) return;
+    if (!dateStr) { el.textContent = 'Backup automático: ainda não gerado'; return; }
+    const d = new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR');
+    el.textContent = `Backup automático: ${d}`;
+  }
+
+  $('restoreBtn').addEventListener('click', () => $('restoreFile').click());
+  $('restoreFile').addEventListener('change', (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!confirm('Isso vai substituir todos os dados atuais pelos do backup. Continuar?')) return;
+        delete parsed._backupDate;
+        state = Object.assign({
+          projectName: "Minha obra", totalContratado: 0, fgtsUsado: 0, terrenoPago: 0,
+          releases: [], expenses: []
+        }, parsed);
+        save();
+        location.reload();
+      } catch (e) {
+        alert('Não foi possível ler esse arquivo de backup.');
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = '';
+  });
 
   $('projectName').addEventListener('change', () => {
     state.projectName = $('projectName').value || "Minha obra";
