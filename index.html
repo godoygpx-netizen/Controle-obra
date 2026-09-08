@@ -406,12 +406,18 @@
         </div>
       </div>
 
-      <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); display:flex; gap:8px; align-items:flex-end;">
-        <div style="flex:1;">
-          <label class="field-label">Marcar fatura do mês como paga</label>
-          <input type="month" id="faturaMonthInput" class="f-input" />
+      <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);">
+        <div style="display:flex; gap:8px; align-items:flex-end;">
+          <div style="flex:1;">
+            <label class="field-label">Marcar fatura do mês como paga</label>
+            <input type="month" id="faturaMonthInput" class="f-input" />
+          </div>
+          <button type="button" class="btn" id="marcarFaturaBtn" style="width:auto; padding:8px 14px; white-space:nowrap;">Marcar paga</button>
         </div>
-        <button type="button" class="btn" id="marcarFaturaBtn" style="width:auto; padding:8px 14px; white-space:nowrap;">Marcar paga</button>
+        <div id="faturaMonthPreview" style="display:none; justify-content:space-between; font-size:12px; color:var(--cartao); font-weight:600; margin-top:8px;">
+          <span>Parcelas do cartão nesse mês</span>
+          <span id="faturaMonthValue" class="num">R$ 0</span>
+        </div>
       </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
@@ -988,6 +994,27 @@
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  function updateFaturaMonthPreview() {
+    const month = $('faturaMonthInput').value;
+    const previewEl = $('faturaMonthPreview');
+    if (!month) { previewEl.style.display = 'none'; return; }
+    let total = 0;
+    state.expenses.forEach(e => {
+      if (e.method !== 'Cartão de crédito') return;
+      getInstallmentSchedule(e).forEach(p => {
+        if (!p.paid && p.dueDate.slice(0, 7) === month) total += p.value;
+      });
+    });
+    if (total > 0) {
+      previewEl.style.display = 'flex';
+      $('faturaMonthValue').textContent = fmt(total);
+    } else {
+      previewEl.style.display = 'none';
+    }
+  }
+  $('faturaMonthInput').addEventListener('input', updateFaturaMonthPreview);
+  $('faturaMonthInput').addEventListener('change', updateFaturaMonthPreview);
+
   $('marcarFaturaBtn').addEventListener('click', () => {
     const month = $('faturaMonthInput').value;
     if (!month) return;
@@ -1288,6 +1315,8 @@
         });
       });
     }
+
+    updateFaturaMonthPreview();
   }
 
   load();
