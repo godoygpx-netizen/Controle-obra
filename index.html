@@ -399,6 +399,10 @@
           <div id="saldoFinanc" class="kpi-value num">R$ 0</div>
         </div>
       </div>
+      <div id="saldoAposParcelasWrap" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); font-size:12px; color:var(--ink-soft); justify-content:space-between;">
+        <span>Saldo após parcelas do cartão deste mês</span>
+        <span id="saldoAposParcelas" class="num" style="font-weight:600;">R$ 0</span>
+      </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
 
@@ -445,27 +449,6 @@
         </div>
       </div>
       <div id="methodBreakdown"></div>
-      </div>
-    </div>
-
-    <!-- PARCELAS DO CARTÃO -->
-    <div class="card" style="border-left-color:var(--cartao);" id="parcelasCard">
-      <div class="card-head collapsible" data-cardtoggle="body-parcelas">
-        <div class="card-title"><span class="dot" style="background:var(--cartao);"></span>Parcelas do cartão a pagar</div>
-        <span class="card-chevron" id="chev-body-parcelas">▾</span>
-      </div>
-      <div class="card-body" id="body-parcelas">
-        <div class="kpi-row">
-          <div class="kpi">
-            <div class="kpi-label">Total pendente</div>
-            <div id="parcelasPendente" class="kpi-value num">R$ 0</div>
-          </div>
-          <div class="kpi">
-            <div class="kpi-label">Vencendo este mês</div>
-            <div id="parcelasMes" class="kpi-value num">R$ 0</div>
-          </div>
-        </div>
-        <div id="parcelasList" class="mini-list" style="border-top:none; padding-top:0;"></div>
       </div>
     </div>
 
@@ -949,15 +932,17 @@
     return arr;
   }
 
-  function addMonths(iso, n) {
+  function firstOfMonthPlus(iso, n) {
     const d = new Date(iso + 'T00:00:00');
-    const day = d.getDate();
+    d.setDate(1);
     d.setMonth(d.getMonth() + n);
-    if (d.getDate() < day) d.setDate(0);
     return d.toISOString().slice(0, 10);
   }
 
   // Builds the per-installment due-date schedule for a card purchase.
+  // Every installment falls on the 1st of a month, starting the month after
+  // the purchase — the exact purchase day doesn't matter for the due date.
+  // Paid/unpaid is set manually by the person, per installment.
   // Last installment absorbs the rounding remainder so the sum matches the total.
   function getInstallmentSchedule(e) {
     const n = e.installments || 1;
@@ -966,12 +951,8 @@
     const schedule = [];
     for (let i = 0; i < n; i++) {
       const value = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
-      schedule.push({
-        index: i,
-        dueDate: addMonths(e.date, i),
-        value,
-        paid: !!(e.paidInstallments && e.paidInstallments[i])
-      });
+      const dueDate = firstOfMonthPlus(e.date, i + 1);
+      schedule.push({ index: i, dueDate, value, paid: !!(e.paidInstallments && e.paidInstallments[i]) });
     }
     return schedule;
   }
@@ -979,6 +960,8 @@
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+
+  let expandedPurchases = new Set();
 
   function render() {
     const totalLancamentos = state.releases.length + state.expenses.length;
@@ -1077,52 +1060,25 @@
 
     checkSaldoWarning();
 
-    // ---- parcelas do cartão ----
+    // ---- parcelas do cartão (usado no saldo informativo do financiamento) ----
     const todayStr = todayISO();
     const currentMonth = todayStr.slice(0, 7);
-    const allInstallments = [];
+    let totalMes = 0;
     cartaoExpenses.forEach(e => {
       getInstallmentSchedule(e).forEach(p => {
-        allInstallments.push({ expenseId: e.id, supplier: e.supplier, ...p });
+        if (!p.paid && p.dueDate.slice(0, 7) === currentMonth) totalMes += p.value;
       });
     });
-    const pending = allInstallments.filter(p => !p.paid).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
-    const totalPendente = pending.reduce((s, p) => s + p.value, 0);
-    const totalMes = pending.filter(p => p.dueDate.slice(0, 7) === currentMonth).reduce((s, p) => s + p.value, 0);
-    $('parcelasPendente').textContent = fmt(totalPendente);
-    $('parcelasMes').textContent = fmt(totalMes);
-    $('parcelasCard').style.display = allInstallments.length ? '' : 'none';
 
-    const parcelasEl = $('parcelasList');
-    if (pending.length === 0) {
-      parcelasEl.innerHTML = '<div class="mini-empty">Nenhuma parcela pendente.</div>';
+    const wrapEl = $('saldoAposParcelasWrap');
+    if (totalMes > 0) {
+      wrapEl.style.display = 'flex';
+      const saldoDepois = saldo - totalMes;
+      const spanEl = $('saldoAposParcelas');
+      spanEl.textContent = fmt(saldoDepois);
+      spanEl.style.color = saldoDepois < 0 ? 'var(--brick)' : 'var(--ink)';
     } else {
-      parcelasEl.innerHTML = pending.map(p => {
-        const d = new Date(p.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
-        const overdue = p.dueDate < todayStr;
-        return `<div class="mini-row" style="${overdue ? 'color:var(--brick);' : ''}">
-          <div class="mini-left">
-            <div class="mini-name">${escapeHtml(p.supplier)} · ${p.index + 1}/${allInstallments.filter(x => x.expenseId === p.expenseId).length}</div>
-            <div class="mini-date">${overdue ? 'Venceu em ' : 'Vence em '}${d}</div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="mini-amt num">${fmt(p.value)}</span>
-            <button type="button" class="link-btn" data-payexp="${p.expenseId}" data-payidx="${p.index}">Marcar paga</button>
-          </div>
-        </div>`;
-      }).join('');
-      parcelasEl.querySelectorAll('[data-payexp]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const ex = state.expenses.find(x => String(x.id) === btn.dataset.payexp);
-          const idx = Number(btn.dataset.payidx);
-          if (ex) {
-            if (!Array.isArray(ex.paidInstallments)) ex.paidInstallments = new Array(ex.installments || 1).fill(false);
-            ex.paidInstallments[idx] = true;
-            save();
-            render();
-          }
-        });
-      });
+      wrapEl.style.display = 'none';
     }
 
     // ---- category breakdown ----
@@ -1169,27 +1125,83 @@
       ledgerEl.innerHTML = list.map(e => {
         const d = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
         const stripeColor = e.origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)';
+        const isParcelado = e.method === 'Cartão de crédito' && e.installments > 1;
+        let schedule = [], paidCount = 0;
+        if (isParcelado) {
+          schedule = getInstallmentSchedule(e);
+          paidCount = schedule.filter(p => p.paid).length;
+        }
         const originLabel = e.origin === 'financiamento' ? 'Financiamento Caixa' :
-          (e.method === 'Cartão de crédito' && e.installments > 1
-            ? `Cartão · ${e.installments}x de ${fmt(e.amount / e.installments)}`
-            : e.method);
-        return `<div class="ledger-item" data-exprow="${e.id}" style="cursor:pointer;">
-          <div style="background:${stripeColor}"></div>
-          <div class="ledger-body">
-            <div class="ledger-top">
-              <div class="ledger-desc">${escapeHtml(e.supplier)}</div>
-              <div class="ledger-amt num">${fmt(e.amount)}</div>
+          (isParcelado ? `Cartão · ${e.installments}x de ${fmt(e.amount / e.installments)}` : e.method);
+        const isOpen = expandedPurchases.has(e.id);
+
+        const installmentsPanel = !isParcelado ? '' : `
+          <div style="${isOpen ? '' : 'display:none;'} background:var(--bg); padding:2px 0;">
+            ${schedule.map(p => {
+              const pd = new Date(p.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
+              const isThisMonth = p.dueDate.slice(0, 7) === todayISO().slice(0, 7);
+              return `<div class="mini-row" style="padding:6px 12px;">
+                <div class="mini-left">
+                  <div class="mini-name" style="font-weight:400; font-size:12.5px;">Parcela ${p.index + 1}/${schedule.length}</div>
+                  <div class="mini-date" style="${(!p.paid && isThisMonth) ? 'color:var(--cartao); font-weight:600;' : ''}">Vence em ${pd}</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mini-amt num">${fmt(p.value)}</span>
+                  <label style="display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-soft); cursor:pointer;">
+                    <input type="checkbox" data-payexp="${e.id}" data-payidx="${p.index}" ${p.paid ? 'checked' : ''} style="cursor:pointer;" />
+                    Paga
+                  </label>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>`;
+
+        return `<div>
+          <div class="ledger-item" data-exprow="${e.id}" style="cursor:pointer;">
+            <div style="background:${stripeColor}"></div>
+            <div class="ledger-body">
+              <div class="ledger-top">
+                <div class="ledger-desc">${escapeHtml(e.supplier)}</div>
+                <div class="ledger-amt num">${fmt(e.amount)}</div>
+              </div>
+              <div class="ledger-meta">
+                <span>${e.category}</span><span>${d}</span><span>${originLabel}</span>
+                ${isParcelado ? `<span data-toggleinst="${e.id}" style="color:var(--cartao); font-weight:600; cursor:pointer;">${isOpen ? '▾' : '▸'} ${paidCount}/${schedule.length} pagas</span>` : ''}
+              </div>
             </div>
-            <div class="ledger-meta"><span>${e.category}</span><span>${d}</span><span>${originLabel}</span></div>
+            <button class="ledger-del" data-id="${e.id}" title="Remover">×</button>
           </div>
-          <button class="ledger-del" data-id="${e.id}" title="Remover">×</button>
+          ${installmentsPanel}
         </div>`;
       }).join('');
       ledgerEl.querySelectorAll('.ledger-item').forEach(row => {
         row.addEventListener('click', (ev) => {
           if (ev.target.closest('.ledger-del')) return;
+          if (ev.target.closest('[data-toggleinst]')) return;
           const e = state.expenses.find(x => String(x.id) === row.dataset.exprow);
           if (e) startExpenseEdit(e);
+        });
+      });
+      ledgerEl.querySelectorAll('[data-toggleinst]').forEach(el => {
+        el.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const id = Number(el.dataset.toggleinst);
+          if (expandedPurchases.has(id)) expandedPurchases.delete(id);
+          else expandedPurchases.add(id);
+          render();
+        });
+      });
+      ledgerEl.querySelectorAll('[data-payexp]').forEach(input => {
+        input.addEventListener('click', (ev) => ev.stopPropagation());
+        input.addEventListener('change', () => {
+          const ex = state.expenses.find(x => String(x.id) === input.dataset.payexp);
+          const idx = Number(input.dataset.payidx);
+          if (ex) {
+            if (!Array.isArray(ex.paidInstallments)) ex.paidInstallments = new Array(ex.installments || 1).fill(false);
+            ex.paidInstallments[idx] = input.checked;
+            save();
+            render();
+          }
         });
       });
       ledgerEl.querySelectorAll('.ledger-del').forEach(btn => {
