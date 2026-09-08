@@ -687,10 +687,24 @@
     $('faturaMonthInput').value = nextPendingMonth();
     applyCardOrder();
     setupCardReorder();
+    collapseResourceCardsOnOpen();
     setOrigin(selectedOrigin);
     setMethod(selectedMethod);
     render();
     autoBackupIfNeeded();
+  }
+
+  // Every time the app is opened, the resource cards (Financiamento,
+  // Recursos próprios, Outras origens, Total da obra) start collapsed so
+  // the "Movimentações" section — lançar pagamento + extrato — is what
+  // the person sees first, without scrolling past everything else.
+  function collapseResourceCardsOnOpen() {
+    ["body-financ", "body-proprio", "body-outras", "body-totalobra"].forEach(id => {
+      const body = document.getElementById(id);
+      const chev = document.getElementById('chev-' + id);
+      if (body) body.classList.add('hidden');
+      if (chev) chev.style.transform = 'rotate(-90deg)';
+    });
   }
 
   // Repositions the four resource cards to match the saved order (moving
