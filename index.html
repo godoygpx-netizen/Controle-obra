@@ -373,6 +373,103 @@
       <div style="font-size:11.5px; color:#9FB0C2; margin-top:2px;">Financiamento + recursos próprios + FGTS + terreno · <span id="totalGeralCount">0</span> lançamentos</div>
     </div>
 
+    <div class="section-eyebrow" id="movHead" style="cursor:pointer;">
+      <span id="movChevron" style="display:inline-block; transition:transform 0.2s;">▾</span>
+      Movimentações
+    </div>
+
+    <div id="movBody">
+
+    <!-- LANÇAR PAGAMENTO -->
+    <div class="card">
+      <div class="section-title">Lançar pagamento a fornecedor</div>
+      <div class="form-grid">
+        <div class="full">
+          <label class="field-label">Fornecedor</label>
+          <input id="supplierInput" class="f-input" placeholder="Ex: Depósito São João" />
+        </div>
+        <div class="row-3 full-row">
+          <div>
+            <label class="field-label">Categoria</label>
+            <select id="catInput" class="f-select">
+              <option value="Materiais">Materiais</option>
+              <option value="Mão de obra">Mão de obra</option>
+              <option value="Equipamentos">Equipamentos</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Licenças/Taxas">Licenças/Taxas</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Valor (R$)</label>
+            <input id="amountInput" class="f-input" inputmode="decimal" placeholder="0,00" />
+          </div>
+          <div>
+            <label class="field-label">Data</label>
+            <input id="dateInput" class="f-input" type="date" />
+          </div>
+        </div>
+        <div class="full">
+          <label class="field-label">Pago com</label>
+          <div class="toggle-2" id="originToggle">
+            <button type="button" data-origin="financiamento">Financiamento Caixa</button>
+            <button type="button" data-origin="proprio">Recurso próprio</button>
+          </div>
+          <div class="warn-note" id="saldoWarn">Isso passa do saldo disponível do financiamento.</div>
+        </div>
+        <div class="full sub-block" id="ownMethodField">
+          <label class="field-label">Forma</label>
+          <div class="toggle-3" id="methodToggle">
+            <button type="button" data-method="Pix">Pix</button>
+            <button type="button" data-method="Cartão de crédito">Cartão de crédito</button>
+          </div>
+        </div>
+        <div class="full sub-block" id="installmentsField">
+          <div class="row-2">
+            <div>
+              <label class="field-label">Parcelado em</label>
+              <input id="installmentsInput" class="f-input" type="number" min="1" max="48" inputmode="numeric" value="1" />
+            </div>
+            <div>
+              <label class="field-label">Valor da parcela</label>
+              <div id="installmentPreview" class="f-input num" style="background:var(--bg); display:flex; align-items:center;">R$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="addExpenseBtn" class="btn btn-primary" style="margin-top:10px;">+ Registrar pagamento</button>
+    </div>
+
+    <!-- CATEGORIAS -->
+    <div class="card" id="catCard" style="display:none;">
+      <div class="section-title">Por categoria</div>
+      <div id="catRows"></div>
+    </div>
+
+    <!-- EXTRATO -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" id="extratoHead">
+      <div class="section-title" style="margin-bottom:0; display:flex; align-items:center; gap:6px;">
+        <span id="extratoChevron" style="display:inline-block; transition:transform 0.2s;">▸</span>
+        Extrato <span id="extratoCount" class="num" style="font-weight:400; color:var(--ink-soft); font-size:12.5px;"></span>
+      </div>
+      <button type="button" id="downloadBtn" class="link-btn">⬇ Baixar CSV</button>
+    </div>
+    <div id="extratoBody" style="display:none;">
+      <div class="filter-row" id="filterRow"></div>
+      <div class="ledger" id="ledger"></div>
+      <div id="editBar" style="display:none; margin-top:8px;">
+        <button type="button" id="cancelEditBtn" class="btn">Cancelar edição</button>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:20px; font-size:11.5px; color:var(--ink-soft);">
+      <span id="backupStatus">Backup automático: —</span>
+      <button type="button" id="restoreBtn" class="link-btn">Restaurar backup</button>
+      <input type="file" id="restoreFile" accept="application/json" style="display:none;" />
+    </div>
+
+    </div>
+
     <div class="section-eyebrow">Fontes de recurso</div>
 
     <div id="cardsContainer">
@@ -538,95 +635,6 @@
 
     </div>
 
-    <div class="section-eyebrow">Movimentações</div>
-
-    <!-- LANÇAR PAGAMENTO -->
-    <div class="card">
-      <div class="section-title">Lançar pagamento a fornecedor</div>
-      <div class="form-grid">
-        <div class="full">
-          <label class="field-label">Fornecedor</label>
-          <input id="supplierInput" class="f-input" placeholder="Ex: Depósito São João" />
-        </div>
-        <div class="row-3 full-row">
-          <div>
-            <label class="field-label">Categoria</label>
-            <select id="catInput" class="f-select">
-              <option value="Materiais">Materiais</option>
-              <option value="Mão de obra">Mão de obra</option>
-              <option value="Equipamentos">Equipamentos</option>
-              <option value="Transporte">Transporte</option>
-              <option value="Licenças/Taxas">Licenças/Taxas</option>
-              <option value="Outros">Outros</option>
-            </select>
-          </div>
-          <div>
-            <label class="field-label">Valor (R$)</label>
-            <input id="amountInput" class="f-input" inputmode="decimal" placeholder="0,00" />
-          </div>
-          <div>
-            <label class="field-label">Data</label>
-            <input id="dateInput" class="f-input" type="date" />
-          </div>
-        </div>
-        <div class="full">
-          <label class="field-label">Pago com</label>
-          <div class="toggle-2" id="originToggle">
-            <button type="button" data-origin="financiamento">Financiamento Caixa</button>
-            <button type="button" data-origin="proprio">Recurso próprio</button>
-          </div>
-          <div class="warn-note" id="saldoWarn">Isso passa do saldo disponível do financiamento.</div>
-        </div>
-        <div class="full sub-block" id="ownMethodField">
-          <label class="field-label">Forma</label>
-          <div class="toggle-3" id="methodToggle">
-            <button type="button" data-method="Pix">Pix</button>
-            <button type="button" data-method="Cartão de crédito">Cartão de crédito</button>
-          </div>
-        </div>
-        <div class="full sub-block" id="installmentsField">
-          <div class="row-2">
-            <div>
-              <label class="field-label">Parcelado em</label>
-              <input id="installmentsInput" class="f-input" type="number" min="1" max="48" inputmode="numeric" value="1" />
-            </div>
-            <div>
-              <label class="field-label">Valor da parcela</label>
-              <div id="installmentPreview" class="f-input num" style="background:var(--bg); display:flex; align-items:center;">R$ 0,00</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <button id="addExpenseBtn" class="btn btn-primary" style="margin-top:10px;">+ Registrar pagamento</button>
-    </div>
-
-    <!-- CATEGORIAS -->
-    <div class="card" id="catCard" style="display:none;">
-      <div class="section-title">Por categoria</div>
-      <div id="catRows"></div>
-    </div>
-
-    <!-- EXTRATO -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" id="extratoHead">
-      <div class="section-title" style="margin-bottom:0; display:flex; align-items:center; gap:6px;">
-        <span id="extratoChevron" style="display:inline-block; transition:transform 0.2s;">▸</span>
-        Extrato <span id="extratoCount" class="num" style="font-weight:400; color:var(--ink-soft); font-size:12.5px;"></span>
-      </div>
-      <button type="button" id="downloadBtn" class="link-btn">⬇ Baixar CSV</button>
-    </div>
-    <div id="extratoBody" style="display:none;">
-      <div class="filter-row" id="filterRow"></div>
-      <div class="ledger" id="ledger"></div>
-      <div id="editBar" style="display:none; margin-top:8px;">
-        <button type="button" id="cancelEditBtn" class="btn">Cancelar edição</button>
-      </div>
-    </div>
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-size:11.5px; color:var(--ink-soft);">
-      <span id="backupStatus">Backup automático: —</span>
-      <button type="button" id="restoreBtn" class="link-btn">Restaurar backup</button>
-      <input type="file" id="restoreFile" accept="application/json" style="display:none;" />
-    </div>
 
   </div>
 </div>
@@ -1525,6 +1533,13 @@ document.getElementById('extratoHead').addEventListener('click', () => {
   extratoOpen = !extratoOpen;
   document.getElementById('extratoBody').style.display = extratoOpen ? 'block' : 'none';
   document.getElementById('extratoChevron').style.transform = extratoOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+});
+
+let movOpen = true;
+document.getElementById('movHead').addEventListener('click', () => {
+  movOpen = !movOpen;
+  document.getElementById('movBody').style.display = movOpen ? 'block' : 'none';
+  document.getElementById('movChevron').style.transform = movOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
 });
 
 document.querySelectorAll('[data-cardtoggle]').forEach(head => {
