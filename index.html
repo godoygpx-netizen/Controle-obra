@@ -1440,15 +1440,19 @@
         const installmentsPanel = !isParcelado ? '' : `
           <div style="${isOpen ? '' : 'display:none;'} background:var(--bg); padding:2px 0;">
             ${schedule.map(p => {
-              return `<div class="mini-row" style="padding:6px 12px; align-items:center;">
+              const isPast = p.dueDate < todayISO();
+              return `<div class="mini-row" style="padding:6px 12px; align-items:center; ${isPast ? 'background:rgba(63,122,87,0.08);' : ''}">
                 <div class="mini-left">
-                  <div class="mini-name" style="font-weight:400; font-size:12.5px;">Parcela ${p.index + 1}/${schedule.length}</div>
+                  <div class="mini-name" style="font-weight:400; font-size:12.5px; display:flex; align-items:center; gap:6px;">
+                    Parcela ${p.index + 1}/${schedule.length}
+                    ${isPast ? '<span style="color:var(--tarp); font-weight:700; font-size:11px;">✓ paga</span>' : ''}
+                  </div>
                   <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
                     <span class="mini-date">Vence em</span>
                     <input type="date" value="${p.dueDate}" data-dateexp="${e.id}" data-dateidx="${p.index}" style="font-size:11px; padding:2px 4px; border:1px solid var(--line); background:#fff; color:var(--ink);" />
                   </div>
                 </div>
-                <span class="mini-amt num">${fmt(p.value)}</span>
+                <span class="mini-amt num" style="${isPast ? 'color:var(--tarp);' : ''}">${fmt(p.value)}</span>
               </div>`;
             }).join('')}
           </div>`;
