@@ -410,6 +410,14 @@
         </div>
       </div>
 
+      <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); display:flex; gap:8px; align-items:flex-end;">
+        <div style="flex:1;">
+          <label class="field-label">Marcar fatura do mês como paga</label>
+          <input type="month" id="faturaMonthInput" class="f-input" />
+        </div>
+        <button type="button" class="btn" id="marcarFaturaBtn" style="width:auto; padding:8px 14px; white-space:nowrap;">Marcar paga</button>
+      </div>
+
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
 
       <div class="add-release-form" id="releaseForm">
@@ -655,6 +663,7 @@
     $('terrenoInput').value = state.terrenoPago ? fmtNum(state.terrenoPago) : "0,00";
     $('releaseDate').value = todayISO();
     $('dateInput').value = todayISO();
+    $('faturaMonthInput').value = todayISO().slice(0, 7);
     setOrigin(selectedOrigin);
     setMethod(selectedMethod);
     render();
@@ -976,6 +985,29 @@
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+
+  $('marcarFaturaBtn').addEventListener('click', () => {
+    const month = $('faturaMonthInput').value;
+    if (!month) return;
+    let count = 0;
+    state.expenses.forEach(e => {
+      if (e.method !== 'Cartão de crédito') return;
+      const schedule = getInstallmentSchedule(e);
+      schedule.forEach(p => {
+        if (!p.paid && p.dueDate.slice(0, 7) === month) {
+          if (!Array.isArray(e.paidInstallments)) e.paidInstallments = new Array(e.installments || 1).fill(false);
+          e.paidInstallments[p.index] = true;
+          count++;
+        }
+      });
+    });
+    if (count === 0) {
+      alert('Nenhuma parcela pendente encontrada para esse mês.');
+      return;
+    }
+    save();
+    render();
+  });
 
   let expandedPurchases = new Set();
 
