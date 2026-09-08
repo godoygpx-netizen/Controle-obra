@@ -1440,7 +1440,7 @@
         const installmentsPanel = !isParcelado ? '' : `
           <div style="${isOpen ? '' : 'display:none;'} background:var(--bg); padding:2px 0;">
             ${schedule.map(p => {
-              const isPast = p.dueDate < todayISO();
+              const isPast = state.faturaPayments.some(f => f.month === p.dueDate.slice(0, 7));
               return `<div class="mini-row" style="padding:6px 12px; align-items:center; ${isPast ? 'background:rgba(63,122,87,0.08);' : ''}">
                 <div class="mini-left">
                   <div class="mini-name" style="font-weight:400; font-size:12.5px; display:flex; align-items:center; gap:6px;">
