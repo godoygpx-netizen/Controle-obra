@@ -448,6 +448,27 @@
       </div>
     </div>
 
+    <!-- PARCELAS DO CARTÃO -->
+    <div class="card" style="border-left-color:var(--cartao);" id="parcelasCard">
+      <div class="card-head collapsible" data-cardtoggle="body-parcelas">
+        <div class="card-title"><span class="dot" style="background:var(--cartao);"></span>Parcelas do cartão a pagar</div>
+        <span class="card-chevron" id="chev-body-parcelas">▾</span>
+      </div>
+      <div class="card-body" id="body-parcelas">
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-label">Total pendente</div>
+            <div id="parcelasPendente" class="kpi-value num">R$ 0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Vencendo este mês</div>
+            <div id="parcelasMes" class="kpi-value num">R$ 0</div>
+          </div>
+        </div>
+        <div id="parcelasList" class="mini-list" style="border-top:none; padding-top:0;"></div>
+      </div>
+    </div>
+
     <!-- OUTRAS ORIGENS -->
     <div class="card" style="border-left-color:var(--amber-deep);">
       <div class="card-head collapsible" data-cardtoggle="body-outras">
@@ -897,19 +918,63 @@
         ex.origin = selectedOrigin;
         ex.method = selectedOrigin === 'proprio' ? selectedMethod : null;
         ex.installments = installments;
+        if (ex.method === 'Cartão de crédito') {
+          ex.paidInstallments = buildPaidArray(ex.paidInstallments, installments || 1);
+        } else {
+          delete ex.paidInstallments;
+        }
       }
     } else {
-      state.expenses.push({
+      const newExpense = {
         id: Date.now(), supplier, category, amount, date,
         origin: selectedOrigin,
         method: selectedOrigin === 'proprio' ? selectedMethod : null,
         installments
-      });
+      };
+      if (newExpense.method === 'Cartão de crédito') {
+        newExpense.paidInstallments = new Array(installments || 1).fill(false);
+      }
+      state.expenses.push(newExpense);
     }
     save();
     cancelExpenseEdit();
     render();
   });
+
+  function buildPaidArray(oldArr, n) {
+    const arr = new Array(n).fill(false);
+    if (Array.isArray(oldArr)) {
+      for (let i = 0; i < Math.min(oldArr.length, n); i++) arr[i] = !!oldArr[i];
+    }
+    return arr;
+  }
+
+  function addMonths(iso, n) {
+    const d = new Date(iso + 'T00:00:00');
+    const day = d.getDate();
+    d.setMonth(d.getMonth() + n);
+    if (d.getDate() < day) d.setDate(0);
+    return d.toISOString().slice(0, 10);
+  }
+
+  // Builds the per-installment due-date schedule for a card purchase.
+  // Last installment absorbs the rounding remainder so the sum matches the total.
+  function getInstallmentSchedule(e) {
+    const n = e.installments || 1;
+    const base = Math.floor((e.amount / n) * 100) / 100;
+    const remainder = Math.round((e.amount - base * n) * 100) / 100;
+    const schedule = [];
+    for (let i = 0; i < n; i++) {
+      const value = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
+      schedule.push({
+        index: i,
+        dueDate: addMonths(e.date, i),
+        value,
+        paid: !!(e.paidInstallments && e.paidInstallments[i])
+      });
+    }
+    return schedule;
+  }
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1011,6 +1076,54 @@
       </div>`;
 
     checkSaldoWarning();
+
+    // ---- parcelas do cartão ----
+    const todayStr = todayISO();
+    const currentMonth = todayStr.slice(0, 7);
+    const allInstallments = [];
+    cartaoExpenses.forEach(e => {
+      getInstallmentSchedule(e).forEach(p => {
+        allInstallments.push({ expenseId: e.id, supplier: e.supplier, ...p });
+      });
+    });
+    const pending = allInstallments.filter(p => !p.paid).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+    const totalPendente = pending.reduce((s, p) => s + p.value, 0);
+    const totalMes = pending.filter(p => p.dueDate.slice(0, 7) === currentMonth).reduce((s, p) => s + p.value, 0);
+    $('parcelasPendente').textContent = fmt(totalPendente);
+    $('parcelasMes').textContent = fmt(totalMes);
+    $('parcelasCard').style.display = allInstallments.length ? '' : 'none';
+
+    const parcelasEl = $('parcelasList');
+    if (pending.length === 0) {
+      parcelasEl.innerHTML = '<div class="mini-empty">Nenhuma parcela pendente.</div>';
+    } else {
+      parcelasEl.innerHTML = pending.map(p => {
+        const d = new Date(p.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
+        const overdue = p.dueDate < todayStr;
+        return `<div class="mini-row" style="${overdue ? 'color:var(--brick);' : ''}">
+          <div class="mini-left">
+            <div class="mini-name">${escapeHtml(p.supplier)} · ${p.index + 1}/${allInstallments.filter(x => x.expenseId === p.expenseId).length}</div>
+            <div class="mini-date">${overdue ? 'Venceu em ' : 'Vence em '}${d}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="mini-amt num">${fmt(p.value)}</span>
+            <button type="button" class="link-btn" data-payexp="${p.expenseId}" data-payidx="${p.index}">Marcar paga</button>
+          </div>
+        </div>`;
+      }).join('');
+      parcelasEl.querySelectorAll('[data-payexp]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const ex = state.expenses.find(x => String(x.id) === btn.dataset.payexp);
+          const idx = Number(btn.dataset.payidx);
+          if (ex) {
+            if (!Array.isArray(ex.paidInstallments)) ex.paidInstallments = new Array(ex.installments || 1).fill(false);
+            ex.paidInstallments[idx] = true;
+            save();
+            render();
+          }
+        });
+      });
+    }
 
     // ---- category breakdown ----
     const byCat = {};
