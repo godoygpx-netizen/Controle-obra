@@ -519,29 +519,7 @@
         </div>
       </div>
 
-      <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);">
-        <label class="field-label">Pagar fatura do cartão com saldo do financiamento</label>
-        <div class="row-2" style="margin-top:4px;">
-          <div>
-            <label class="field-label">Mês</label>
-            <input type="month" id="faturaMonthInput" class="f-input" />
-          </div>
-          <div>
-            <label class="field-label">Valor utilizado do saldo</label>
-            <div class="kpi-currency">
-              <span class="num" style="font-size:14px;">R$</span>
-              <input id="faturaAmountInput" class="edit-inline" style="font-size:14px;" inputmode="decimal" value="0,00" />
-            </div>
-          </div>
-        </div>
-        <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar / editar pagamento da fatura</button>
-        <div class="mini-list" id="faturaPaymentsListWrap" style="display:none;">
-          <div class="field-label" style="margin-bottom:8px;">Pagamentos de fatura registrados</div>
-          <div id="faturaPaymentsList"></div>
-        </div>
-      </div>
-
-      <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
+      <button type="button" class="link-btn" id="toggleReleaseForm" style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); display:block; width:100%; text-align:left;">+ Lançar liberação (etapa)</button>
 
       <div class="add-release-form" id="releaseForm">
         <div class="release-grid">
@@ -568,6 +546,28 @@
       <div class="mini-list">
         <div class="field-label" style="margin-bottom:8px;">Liberações registradas</div>
         <div id="releaseList"></div>
+      </div>
+
+      <div style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--line);">
+        <label class="field-label">Pagar fatura do cartão com saldo do financiamento</label>
+        <div class="row-2" style="margin-top:4px;">
+          <div>
+            <label class="field-label">Mês</label>
+            <input type="month" id="faturaMonthInput" class="f-input" />
+          </div>
+          <div>
+            <label class="field-label">Valor utilizado do saldo</label>
+            <div class="kpi-currency">
+              <span class="num" style="font-size:14px;">R$</span>
+              <input id="faturaAmountInput" class="edit-inline" style="font-size:14px;" inputmode="decimal" value="0,00" />
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar / editar pagamento da fatura</button>
+        <div class="mini-list" id="faturaPaymentsListWrap" style="display:none;">
+          <div class="field-label" style="margin-bottom:8px;">Pagamentos de fatura registrados</div>
+          <div id="faturaPaymentsList"></div>
+        </div>
       </div>
       </div>
     </div>
