@@ -221,6 +221,7 @@
   .add-release-form { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
   .add-release-form.show { display: block; }
   .release-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .release-grid > div { min-width: 0; }
 
   .field-label {
     font-size: 10.5px;
@@ -265,7 +266,9 @@
   }
   .form-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row-2 > div { min-width: 0; }
   .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .row-3 > div { min-width: 0; }
 
   .toggle-2 { display: flex; border: 1px solid var(--line-strong); }
   .toggle-2 button {
@@ -1207,18 +1210,30 @@
     // Apply the entered amount across this month's pending installments, in
     // order. Whichever installment only gets partially covered has its
     // value adjusted down to what was actually used (rest stays pending
-    // under a later date, since it's still owed).
-    const targets = [];
+    // as recurso próprio for that same month).
+    let targets = [];
     state.expenses.forEach(e => {
       if (e.method !== 'Cartão de crédito') return;
       getInstallmentSchedule(e).forEach(p => {
         if (!p.paid && p.dueDate.slice(0, 7) === month) targets.push({ e, p });
       });
     });
+
+    // That month is already fully covered — apply the value to whatever
+    // is pending next instead of blocking the registration.
+    if (targets.length === 0) {
+      state.expenses.forEach(e => {
+        if (e.method !== 'Cartão de crédito') return;
+        getInstallmentSchedule(e).forEach(p => {
+          if (!p.paid) targets.push({ e, p });
+        });
+      });
+    }
+
     targets.sort((a, b) => a.p.dueDate.localeCompare(b.p.dueDate));
 
     if (targets.length === 0) {
-      alert('Nenhuma parcela pendente encontrada para esse mês.');
+      alert('Não há nenhuma parcela de cartão pendente no momento.');
       return;
     }
 
