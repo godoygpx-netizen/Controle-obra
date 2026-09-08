@@ -985,8 +985,12 @@
 
   function saldoFinanc() {
     const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
-    const pago = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
-    return liberado - pago;
+    const pagoDireto = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
+    let cartaoPago = 0;
+    state.expenses.filter(e => e.method === 'Cartão de crédito').forEach(e => {
+      getInstallmentSchedule(e).forEach(p => { if (p.paid) cartaoPago += p.value; });
+    });
+    return liberado - pagoDireto - cartaoPago;
   }
 
   function checkSaldoWarning() {
@@ -1052,9 +1056,11 @@
         if (ex.method === 'Cartão de crédito') {
           ex.paidInstallments = buildPaidArray(ex.paidInstallments, installments || 1);
           ex.dueDates = buildDatesArray(ex.dueDates, installments || 1);
+          ex.installmentValues = buildDatesArray(ex.installmentValues, installments || 1);
         } else {
           delete ex.paidInstallments;
           delete ex.dueDates;
+          delete ex.installmentValues;
         }
       }
     } else {
@@ -1067,6 +1073,7 @@
       if (newExpense.method === 'Cartão de crédito') {
         newExpense.paidInstallments = new Array(installments || 1).fill(false);
         newExpense.dueDates = new Array(installments || 1).fill(null);
+        newExpense.installmentValues = new Array(installments || 1).fill(null);
       }
       state.expenses.push(newExpense);
     }
@@ -1113,9 +1120,11 @@
     const remainder = Math.round((e.amount - base * n) * 100) / 100;
     const schedule = [];
     for (let i = 0; i < n; i++) {
-      const value = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
-      const override = e.dueDates && e.dueDates[i];
-      const dueDate = override || firstOfMonthPlus(e.date, i + 1);
+      const computed = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
+      const dueOverride = e.dueDates && e.dueDates[i];
+      const dueDate = dueOverride || firstOfMonthPlus(e.date, i + 1);
+      const valueOverride = e.installmentValues && e.installmentValues[i];
+      const value = (valueOverride !== null && valueOverride !== undefined) ? valueOverride : computed;
       schedule.push({ index: i, dueDate, value, paid: !!(e.paidInstallments && e.paidInstallments[i]) });
     }
     return schedule;
@@ -1213,10 +1222,22 @@
     $('totalObraTerreno').textContent = fmt(terreno);
     $('totalObraGeral').textContent = fmt(financContratado + fgts + terreno);
 
+    // ---- cartão: quanto já foi coberto pela etapa (fatura paga) vs ainda em aberto ----
+    const allCartaoExpenses = state.expenses.filter(e => e.method === 'Cartão de crédito');
+    let cartaoPagoViaFinanciamento = 0;
+    let cartaoPendente = 0;
+    allCartaoExpenses.forEach(e => {
+      getInstallmentSchedule(e).forEach(p => {
+        if (p.paid) cartaoPagoViaFinanciamento += p.value;
+        else cartaoPendente += p.value;
+      });
+    });
+
     // ---- financiamento ----
     const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
     const contratado = state.totalContratado || 0;
-    const pagoFinanc = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
+    const pagoFinancDireto = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
+    const pagoFinanc = pagoFinancDireto + cartaoPagoViaFinanciamento;
     const saldo = liberado - pagoFinanc;
 
     $('totalLiberado').textContent = fmt(liberado);
@@ -1272,11 +1293,10 @@
 
     // ---- recursos próprios ----
     const ownExpenses = state.expenses.filter(e => e.origin === 'proprio');
-    const totalProprio = ownExpenses.reduce((s, e) => s + e.amount, 0);
     const pixExpenses = ownExpenses.filter(e => e.method === 'Pix');
     const cartaoExpenses = ownExpenses.filter(e => e.method === 'Cartão de crédito');
     const pix = pixExpenses.reduce((s, e) => s + e.amount, 0);
-    const cartao = cartaoExpenses.reduce((s, e) => s + e.amount, 0);
+    const totalProprio = pix + cartaoPendente;
     $('totalProprio').textContent = fmt(totalProprio);
 
     const cartaoParcelado = cartaoExpenses.filter(e => e.installments > 1).length;
@@ -1287,8 +1307,9 @@
       </div>
       <div class="method-row">
         <div class="method-name"><span class="method-dot" style="background:var(--cartao);"></span>Cartão de crédito${cartaoParcelado ? ` <span style="color:var(--ink-soft); font-weight:400;">(${cartaoParcelado} parcelado${cartaoParcelado > 1 ? 's' : ''})</span>` : ''}</div>
-        <span class="method-amt num">${fmt(cartao)}</span>
-      </div>`;
+        <span class="method-amt num">${fmt(cartaoPendente)}</span>
+      </div>
+      ${cartaoPagoViaFinanciamento > 0 ? `<div style="font-size:11px; color:var(--ink-soft); margin-top:4px;">${fmt(cartaoPagoViaFinanciamento)} do cartão já coberto pelas etapas (fatura paga)</div>` : ''}`;
 
     checkSaldoWarning();
 
@@ -1378,8 +1399,9 @@
                     <input type="date" value="${p.dueDate}" data-dateexp="${e.id}" data-dateidx="${p.index}" style="font-size:11px; padding:2px 4px; border:1px solid var(--line); background:#fff; color:var(--ink);" />
                   </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="mini-amt num">${fmt(p.value)}</span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span class="num" style="font-size:12px;">R$</span>
+                  <input type="text" inputmode="decimal" value="${fmtNum(p.value)}" data-valexp="${e.id}" data-validx="${p.index}" style="width:72px; font-size:12px; padding:2px 4px; border:1px solid var(--line); background:#fff; color:var(--ink); text-align:right;" />
                   <label style="display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-soft); cursor:pointer;">
                     <input type="checkbox" data-payexp="${e.id}" data-payidx="${p.index}" ${p.paid ? 'checked' : ''} style="cursor:pointer;" />
                     Paga
@@ -1455,6 +1477,19 @@
               ex.dueDates[i] = firstOfMonthPlus(newDate.slice(0, 8) + '01', i);
             }
           }
+          save();
+          render();
+        });
+      });
+      ledgerEl.querySelectorAll('[data-valexp]').forEach(input => {
+        input.addEventListener('click', (ev) => ev.stopPropagation());
+        input.addEventListener('change', () => {
+          const ex = state.expenses.find(x => String(x.id) === input.dataset.valexp);
+          const idx = Number(input.dataset.validx);
+          if (!ex) return;
+          const n = ex.installments || 1;
+          if (!Array.isArray(ex.installmentValues)) ex.installmentValues = new Array(n).fill(null);
+          ex.installmentValues[idx] = parseAmount(input.value);
           save();
           render();
         });
