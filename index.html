@@ -538,7 +538,11 @@
           <span>Pendente nesse mês</span>
           <span id="faturaMonthValue" class="num">R$ 0</span>
         </div>
-        <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar pagamento da fatura</button>
+        <div id="faturaRegistradoPreview" style="display:none; justify-content:space-between; font-size:11.5px; color:var(--cartao); margin-top:2px;">
+          <span>Já registrado nesse mês</span>
+          <span id="faturaRegistradoValue" class="num">R$ 0</span>
+        </div>
+        <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar / editar pagamento da fatura</button>
       </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
@@ -1179,10 +1183,14 @@
     const previewEl = $('faturaMonthPreview');
     if (!month) { previewEl.style.display = 'none'; return; }
     let total = 0;
+    let registrado = 0;
     state.expenses.forEach(e => {
       if (e.method !== 'Cartão de crédito') return;
       getInstallmentSchedule(e).forEach(p => {
-        if (p.dueDate.slice(0, 7) === month) total += p.value;
+        if (p.dueDate.slice(0, 7) === month) {
+          total += p.value;
+          if (p.paid) registrado += p.value;
+        }
       });
     });
     const pending = pendingForMonth(month);
@@ -1194,7 +1202,17 @@
     } else {
       previewEl.style.display = 'none';
     }
-    $('faturaAmountInput').value = fmtNum(pending);
+    const registradoEl = $('faturaRegistradoPreview');
+    if (registrado > 0) {
+      registradoEl.style.display = 'flex';
+      $('faturaRegistradoValue').textContent = fmt(registrado);
+    } else {
+      registradoEl.style.display = 'none';
+    }
+    // Suggest what's already registered for this month (so revisiting it
+    // shows the current value, ready to edit) — falling back to the
+    // pending amount when nothing's been registered yet.
+    $('faturaAmountInput').value = fmtNum(registrado > 0 ? registrado : pending);
   }
   $('faturaMonthInput').addEventListener('change', updateFaturaMonthPreview);
 
@@ -1206,6 +1224,18 @@
       alert('Digite um valor maior que zero.');
       return;
     }
+
+    // Revert anything already registered as paid for this month first, so
+    // picking a month you'd already registered acts as an edit: whatever
+    // value you type now replaces what was there before.
+    state.expenses.forEach(e => {
+      if (e.method !== 'Cartão de crédito' || !Array.isArray(e.paidInstallments)) return;
+      getInstallmentSchedule(e).forEach(p => {
+        if (p.paid && p.dueDate.slice(0, 7) === month) {
+          e.paidInstallments[p.index] = false;
+        }
+      });
+    });
 
     // Apply the entered amount across this month's pending installments, in
     // order. Whichever installment only gets partially covered has its
@@ -1219,8 +1249,8 @@
       });
     });
 
-    // That month is already fully covered — apply the value to whatever
-    // is pending next instead of blocking the registration.
+    // That month has no card installments at all — apply the value to
+    // whatever is pending next instead of blocking the registration.
     if (targets.length === 0) {
       state.expenses.forEach(e => {
         if (e.method !== 'Cartão de crédito') return;
