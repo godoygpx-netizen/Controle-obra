@@ -998,16 +998,22 @@
     const month = $('faturaMonthInput').value;
     const previewEl = $('faturaMonthPreview');
     if (!month) { previewEl.style.display = 'none'; return; }
+    let pending = 0;
     let total = 0;
     state.expenses.forEach(e => {
       if (e.method !== 'Cartão de crédito') return;
       getInstallmentSchedule(e).forEach(p => {
-        if (!p.paid && p.dueDate.slice(0, 7) === month) total += p.value;
+        if (p.dueDate.slice(0, 7) === month) {
+          total += p.value;
+          if (!p.paid) pending += p.value;
+        }
       });
     });
     if (total > 0) {
       previewEl.style.display = 'flex';
-      $('faturaMonthValue').textContent = fmt(total);
+      const allPaid = pending === 0;
+      $('faturaMonthValue').textContent = fmt(total) + (allPaid ? ' (já paga)' : '');
+      previewEl.style.color = allPaid ? 'var(--tarp)' : 'var(--cartao)';
     } else {
       previewEl.style.display = 'none';
     }
