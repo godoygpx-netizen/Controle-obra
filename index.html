@@ -400,13 +400,9 @@
         </div>
       </div>
       <div id="saldoAposParcelasWrap" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);">
-        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--cartao); font-weight:600; margin-bottom:4px;">
-          <span>Parcelas do cartão vencendo este mês</span>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--cartao); font-weight:600;">
+          <span>Pagar na próxima Fatura Cartão</span>
           <span id="parcelasDoMes" class="num">R$ 0</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft);">
-          <span>Saldo do financiamento após reservar esse valor</span>
-          <span id="saldoAposParcelas" class="num" style="font-weight:600;">R$ 0</span>
         </div>
       </div>
 
@@ -918,8 +914,10 @@
         ex.installments = installments;
         if (ex.method === 'Cartão de crédito') {
           ex.paidInstallments = buildPaidArray(ex.paidInstallments, installments || 1);
+          ex.dueDates = buildDatesArray(ex.dueDates, installments || 1);
         } else {
           delete ex.paidInstallments;
+          delete ex.dueDates;
         }
       }
     } else {
@@ -931,6 +929,7 @@
       };
       if (newExpense.method === 'Cartão de crédito') {
         newExpense.paidInstallments = new Array(installments || 1).fill(false);
+        newExpense.dueDates = new Array(installments || 1).fill(null);
       }
       state.expenses.push(newExpense);
     }
@@ -947,13 +946,15 @@
     return arr;
   }
 
-  // Given a purchase date, returns how many months ahead the first
-  // installment falls: if bought on day 25 or later, it misses the current
-  // billing cycle and rolls to the one after (2 months ahead); otherwise it
-  // lands in the very next cycle (1 month ahead).
-  function firstInstallmentOffset(iso) {
-    const day = new Date(iso + 'T00:00:00').getDate();
-    return day >= 25 ? 2 : 1;
+  // Resizes an array of manual due-date overrides to length n, keeping
+  // whichever overrides still fit and leaving new slots as null (meaning:
+  // use the computed default date for that installment).
+  function buildDatesArray(oldArr, n) {
+    const arr = new Array(n).fill(null);
+    if (Array.isArray(oldArr)) {
+      for (let i = 0; i < Math.min(oldArr.length, n); i++) arr[i] = oldArr[i] || null;
+    }
+    return arr;
   }
 
   function firstOfMonthPlus(iso, n) {
@@ -964,19 +965,20 @@
   }
 
   // Builds the per-installment due-date schedule for a card purchase.
-  // Every installment falls on the 1st of a month. Purchases on day 25+
-  // miss that month's closing and start one cycle later (see
-  // firstInstallmentOffset). Paid/unpaid is set manually, per installment.
+  // By default every installment falls on the 1st of the month, starting
+  // the month after the purchase — but any installment's date can be
+  // overridden manually via e.dueDates[i].
+  // Paid/unpaid is set manually, per installment.
   // Last installment absorbs the rounding remainder so the sum matches the total.
   function getInstallmentSchedule(e) {
     const n = e.installments || 1;
     const base = Math.floor((e.amount / n) * 100) / 100;
     const remainder = Math.round((e.amount - base * n) * 100) / 100;
-    const startOffset = firstInstallmentOffset(e.date);
     const schedule = [];
     for (let i = 0; i < n; i++) {
       const value = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
-      const dueDate = firstOfMonthPlus(e.date, startOffset + i);
+      const override = e.dueDates && e.dueDates[i];
+      const dueDate = override || firstOfMonthPlus(e.date, i + 1);
       schedule.push({ index: i, dueDate, value, paid: !!(e.paidInstallments && e.paidInstallments[i]) });
     }
     return schedule;
@@ -1122,10 +1124,6 @@
     if (totalMes > 0) {
       wrapEl.style.display = 'block';
       $('parcelasDoMes').textContent = fmt(totalMes);
-      const saldoDepois = saldo - totalMes;
-      const spanEl = $('saldoAposParcelas');
-      spanEl.textContent = fmt(saldoDepois);
-      spanEl.style.color = saldoDepois < 0 ? 'var(--brick)' : 'var(--ink)';
     } else {
       wrapEl.style.display = 'none';
     }
@@ -1187,12 +1185,14 @@
         const installmentsPanel = !isParcelado ? '' : `
           <div style="${isOpen ? '' : 'display:none;'} background:var(--bg); padding:2px 0;">
             ${schedule.map(p => {
-              const pd = new Date(p.dueDate + 'T00:00:00').toLocaleDateString('pt-BR');
               const isThisMonth = p.dueDate.slice(0, 7) === todayISO().slice(0, 7);
-              return `<div class="mini-row" style="padding:6px 12px;">
+              return `<div class="mini-row" style="padding:6px 12px; align-items:center;">
                 <div class="mini-left">
                   <div class="mini-name" style="font-weight:400; font-size:12.5px;">Parcela ${p.index + 1}/${schedule.length}</div>
-                  <div class="mini-date" style="${(!p.paid && isThisMonth) ? 'color:var(--cartao); font-weight:600;' : ''}">Vence em ${pd}</div>
+                  <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
+                    <span class="mini-date" style="${(!p.paid && isThisMonth) ? 'color:var(--cartao); font-weight:600;' : ''}">Vence em</span>
+                    <input type="date" value="${p.dueDate}" data-dateexp="${e.id}" data-dateidx="${p.index}" style="font-size:11px; padding:2px 4px; border:1px solid var(--line); background:#fff; color:var(--ink);" />
+                  </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span class="mini-amt num">${fmt(p.value)}</span>
@@ -1251,6 +1251,28 @@
             save();
             render();
           }
+        });
+      });
+      ledgerEl.querySelectorAll('[data-dateexp]').forEach(input => {
+        input.addEventListener('click', (ev) => ev.stopPropagation());
+        input.addEventListener('change', () => {
+          const ex = state.expenses.find(x => String(x.id) === input.dataset.dateexp);
+          const idx = Number(input.dataset.dateidx);
+          const newDate = input.value;
+          if (!ex || !newDate) return;
+          const n = ex.installments || 1;
+          if (!Array.isArray(ex.dueDates)) ex.dueDates = new Array(n).fill(null);
+          ex.dueDates[idx] = newDate;
+          // Editing the first installment re-bases every later installment
+          // that MONTH after MONTH from the new date, so the whole
+          // schedule shifts together instead of needing to edit each one.
+          if (idx === 0) {
+            for (let i = 1; i < n; i++) {
+              ex.dueDates[i] = firstOfMonthPlus(newDate.slice(0, 8) + '01', i);
+            }
+          }
+          save();
+          render();
         });
       });
       ledgerEl.querySelectorAll('.ledger-del').forEach(btn => {
