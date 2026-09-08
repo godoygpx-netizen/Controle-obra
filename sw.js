@@ -1,4 +1,4 @@
-const CACHE_NAME = "controle-obra-v41";
+const CACHE_NAME = "controle-obra-v42";
 const ASSETS = [
   "./index.html"
 ];

@@ -534,15 +534,11 @@
             </div>
           </div>
         </div>
-        <div id="faturaMonthPreview" style="display:none; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:6px;">
-          <span>Pendente nesse mês</span>
-          <span id="faturaMonthValue" class="num">R$ 0</span>
-        </div>
-        <div id="faturaRegistradoPreview" style="display:none; justify-content:space-between; font-size:11.5px; color:var(--cartao); margin-top:2px;">
-          <span>Já registrado nesse mês</span>
-          <span id="faturaRegistradoValue" class="num">R$ 0</span>
-        </div>
         <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar / editar pagamento da fatura</button>
+        <div class="mini-list" id="faturaPaymentsListWrap" style="display:none;">
+          <div class="field-label" style="margin-bottom:8px;">Pagamentos de fatura registrados</div>
+          <div id="faturaPaymentsList"></div>
+        </div>
       </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
@@ -673,7 +669,8 @@
     terrenoPago: 0,
     cardOrder: ["financ", "proprio", "outras", "totalobra"],
     releases: [],   // {id, label, amount, date}
-    expenses: []    // {id, supplier, category, amount, date, origin: 'financiamento'|'proprio', method?: 'Pix'|'Cartão de crédito'}
+    expenses: [],   // {id, supplier, category, amount, date, origin: 'financiamento'|'proprio', method?: 'Pix'|'Cartão de crédito'}
+    faturaPayments: []  // {id, month: 'YYYY-MM', amount} — saldo do financiamento usado pra pagar a fatura do cartão naquele mês
   };
 
   let selectedOrigin = "financiamento";
@@ -1002,10 +999,7 @@
   function saldoFinanc() {
     const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
     const pagoDireto = state.expenses.filter(e => e.origin === 'financiamento').reduce((s, e) => s + e.amount, 0);
-    let cartaoPago = 0;
-    state.expenses.filter(e => e.method === 'Cartão de crédito').forEach(e => {
-      getInstallmentSchedule(e).forEach(p => { if (p.paid) cartaoPago += p.value; });
-    });
+    const cartaoPago = state.faturaPayments.reduce((s, f) => s + f.amount, 0);
     return liberado - pagoDireto - cartaoPago;
   }
 
@@ -1070,13 +1064,9 @@
         ex.method = selectedOrigin === 'proprio' ? selectedMethod : null;
         ex.installments = installments;
         if (ex.method === 'Cartão de crédito') {
-          ex.paidInstallments = buildPaidArray(ex.paidInstallments, installments || 1);
           ex.dueDates = buildDatesArray(ex.dueDates, installments || 1);
-          ex.installmentValues = buildDatesArray(ex.installmentValues, installments || 1);
         } else {
-          delete ex.paidInstallments;
           delete ex.dueDates;
-          delete ex.installmentValues;
         }
       }
     } else {
@@ -1087,9 +1077,7 @@
         installments
       };
       if (newExpense.method === 'Cartão de crédito') {
-        newExpense.paidInstallments = new Array(installments || 1).fill(false);
         newExpense.dueDates = new Array(installments || 1).fill(null);
-        newExpense.installmentValues = new Array(installments || 1).fill(null);
       }
       state.expenses.push(newExpense);
     }
@@ -1097,14 +1085,6 @@
     cancelExpenseEdit();
     render();
   });
-
-  function buildPaidArray(oldArr, n) {
-    const arr = new Array(n).fill(false);
-    if (Array.isArray(oldArr)) {
-      for (let i = 0; i < Math.min(oldArr.length, n); i++) arr[i] = !!oldArr[i];
-    }
-    return arr;
-  }
 
   // Resizes an array of manual due-date overrides to length n, keeping
   // whichever overrides still fit and leaving new slots as null (meaning:
@@ -1124,24 +1104,23 @@
     return d.toISOString().slice(0, 10);
   }
 
-  // Builds the per-installment due-date schedule for a card purchase.
+  // Builds the per-installment due-date schedule for a card purchase —
+  // purely informational (when each installment is due and how much).
   // By default every installment falls on the 1st of the month, starting
-  // the month after the purchase — but any installment's date can be
-  // overridden manually via e.dueDates[i].
-  // Paid/unpaid is set manually, per installment.
-  // Last installment absorbs the rounding remainder so the sum matches the total.
+  // the month after the purchase, but any installment's date can be
+  // overridden manually via e.dueDates[i]. Whether it's actually been
+  // paid is tracked separately, in aggregate, via state.faturaPayments —
+  // not per installment — so it isn't computed here.
   function getInstallmentSchedule(e) {
     const n = e.installments || 1;
     const base = Math.floor((e.amount / n) * 100) / 100;
     const remainder = Math.round((e.amount - base * n) * 100) / 100;
     const schedule = [];
     for (let i = 0; i < n; i++) {
-      const computed = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
+      const value = i === n - 1 ? Math.round((base + remainder) * 100) / 100 : base;
       const dueOverride = e.dueDates && e.dueDates[i];
       const dueDate = dueOverride || firstOfMonthPlus(e.date, i + 1);
-      const valueOverride = e.installmentValues && e.installmentValues[i];
-      const value = (valueOverride !== null && valueOverride !== undefined) ? valueOverride : computed;
-      schedule.push({ index: i, dueDate, value, paid: !!(e.paidInstallments && e.paidInstallments[i]) });
+      schedule.push({ index: i, dueDate, value });
     }
     return schedule;
   }
@@ -1150,151 +1129,65 @@
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  // Finds the earliest month (YYYY-MM) that still has an unpaid card
-  // installment due. Falls back to the current month when everything
-  // is already paid up (or there are no card purchases at all).
+  // Finds the earliest month that isn't fully covered yet by a registered
+  // fatura payment — i.e., total card installments due that month exceed
+  // what's registered in state.faturaPayments for it.
   function nextPendingMonth() {
-    let earliest = null;
+    const dueByMonth = {};
     state.expenses.forEach(e => {
       if (e.method !== 'Cartão de crédito') return;
       getInstallmentSchedule(e).forEach(p => {
-        if (!p.paid) {
-          const m = p.dueDate.slice(0, 7);
-          if (!earliest || m < earliest) earliest = m;
-        }
+        const m = p.dueDate.slice(0, 7);
+        dueByMonth[m] = (dueByMonth[m] || 0) + p.value;
       });
     });
-    return earliest || todayISO().slice(0, 7);
+    const paidByMonth = {};
+    state.faturaPayments.forEach(f => { paidByMonth[f.month] = (paidByMonth[f.month] || 0) + f.amount; });
+
+    const months = Object.keys(dueByMonth).sort();
+    for (const m of months) {
+      if ((paidByMonth[m] || 0) < dueByMonth[m] - 0.01) return m;
+    }
+    return todayISO().slice(0, 7);
   }
 
-  function pendingForMonth(month) {
-    let pending = 0;
+  function totalDueForMonth(month) {
+    let total = 0;
     state.expenses.forEach(e => {
       if (e.method !== 'Cartão de crédito') return;
       getInstallmentSchedule(e).forEach(p => {
-        if (!p.paid && p.dueDate.slice(0, 7) === month) pending += p.value;
+        if (p.dueDate.slice(0, 7) === month) total += p.value;
       });
     });
-    return Math.round(pending * 100) / 100;
+    return Math.round(total * 100) / 100;
   }
 
   function updateFaturaMonthPreview() {
     const month = $('faturaMonthInput').value;
-    const previewEl = $('faturaMonthPreview');
-    if (!month) { previewEl.style.display = 'none'; return; }
-    let total = 0;
-    let registrado = 0;
-    state.expenses.forEach(e => {
-      if (e.method !== 'Cartão de crédito') return;
-      getInstallmentSchedule(e).forEach(p => {
-        if (p.dueDate.slice(0, 7) === month) {
-          total += p.value;
-          if (p.paid) registrado += p.value;
-        }
-      });
-    });
-    const pending = pendingForMonth(month);
-    if (total > 0) {
-      previewEl.style.display = 'flex';
-      const allPaid = pending === 0;
-      $('faturaMonthValue').textContent = fmt(pending) + (allPaid ? ' (já paga)' : '');
-      previewEl.style.color = allPaid ? 'var(--tarp)' : 'var(--ink-soft)';
-    } else {
-      previewEl.style.display = 'none';
-    }
-    const registradoEl = $('faturaRegistradoPreview');
-    if (registrado > 0) {
-      registradoEl.style.display = 'flex';
-      $('faturaRegistradoValue').textContent = fmt(registrado);
-    } else {
-      registradoEl.style.display = 'none';
-    }
-    // Suggest what's already registered for this month (so revisiting it
-    // shows the current value, ready to edit) — falling back to the
-    // pending amount when nothing's been registered yet.
-    $('faturaAmountInput').value = fmtNum(registrado > 0 ? registrado : pending);
+    if (!month) return;
+    const existing = state.faturaPayments.find(f => f.month === month);
+    const dueTotal = totalDueForMonth(month);
+    $('faturaAmountInput').value = fmtNum(existing ? existing.amount : dueTotal);
   }
   $('faturaMonthInput').addEventListener('change', updateFaturaMonthPreview);
 
   $('marcarFaturaBtn').addEventListener('click', () => {
     const month = $('faturaMonthInput').value;
     if (!month) return;
-    let amountToApply = parseAmount($('faturaAmountInput').value);
-    if (amountToApply <= 0) {
+    const amount = parseAmount($('faturaAmountInput').value);
+    if (amount <= 0) {
       alert('Digite um valor maior que zero.');
       return;
     }
-
-    // Revert anything already registered as paid for this month first, so
-    // picking a month you'd already registered acts as an edit: whatever
-    // value you type now replaces what was there before.
-    state.expenses.forEach(e => {
-      if (e.method !== 'Cartão de crédito' || !Array.isArray(e.paidInstallments)) return;
-      getInstallmentSchedule(e).forEach(p => {
-        if (p.paid && p.dueDate.slice(0, 7) === month) {
-          e.paidInstallments[p.index] = false;
-        }
-      });
-    });
-
-    // Apply the entered amount across this month's pending installments, in
-    // order. Whichever installment only gets partially covered has its
-    // value adjusted down to what was actually used (rest stays pending
-    // as recurso próprio for that same month).
-    let targets = [];
-    state.expenses.forEach(e => {
-      if (e.method !== 'Cartão de crédito') return;
-      getInstallmentSchedule(e).forEach(p => {
-        if (!p.paid && p.dueDate.slice(0, 7) === month) targets.push({ e, p });
-      });
-    });
-
-    // That month has no card installments at all — apply the value to
-    // whatever is pending next instead of blocking the registration.
-    if (targets.length === 0) {
-      state.expenses.forEach(e => {
-        if (e.method !== 'Cartão de crédito') return;
-        getInstallmentSchedule(e).forEach(p => {
-          if (!p.paid) targets.push({ e, p });
-        });
-      });
+    const existing = state.faturaPayments.find(f => f.month === month);
+    if (existing) {
+      existing.amount = amount;
+    } else {
+      state.faturaPayments.push({ id: Date.now(), month, amount });
     }
-
-    targets.sort((a, b) => a.p.dueDate.localeCompare(b.p.dueDate));
-
-    if (targets.length === 0) {
-      alert('Não há nenhuma parcela de cartão pendente no momento.');
-      return;
-    }
-
-    for (const { e, p } of targets) {
-      if (amountToApply <= 0) break;
-      const n = e.installments || 1;
-      if (!Array.isArray(e.paidInstallments)) e.paidInstallments = new Array(n).fill(false);
-      if (!Array.isArray(e.installmentValues)) e.installmentValues = new Array(n).fill(null);
-
-      if (amountToApply >= p.value) {
-        e.paidInstallments[p.index] = true;
-        amountToApply = Math.round((amountToApply - p.value) * 100) / 100;
-      } else {
-        // Partial: only part of this installment is covered by the
-        // financing saldo. That part is marked paid; the rest stays as a
-        // separate entry, still pending — i.e., still counted as recurso
-        // próprio for this same month, not pushed to a later one.
-        const remainder = Math.round((p.value - amountToApply) * 100) / 100;
-        e.installmentValues[p.index] = amountToApply;
-        e.paidInstallments[p.index] = true;
-        e.installments = n + 1;
-        e.paidInstallments.splice(p.index + 1, 0, false);
-        e.installmentValues.splice(p.index + 1, 0, remainder);
-        if (!Array.isArray(e.dueDates)) e.dueDates = new Array(n).fill(null);
-        e.dueDates.splice(p.index + 1, 0, p.dueDate);
-        amountToApply = 0;
-      }
-    }
-
     save();
     $('faturaMonthInput').value = nextPendingMonth();
+    updateFaturaMonthPreview();
     render();
   });
 
@@ -1319,15 +1212,10 @@
     $('totalObraGeral').textContent = fmt(financContratado + fgts + terreno);
 
     // ---- cartão: quanto já foi coberto pela etapa (fatura paga) vs ainda em aberto ----
-    const allCartaoExpenses = state.expenses.filter(e => e.method === 'Cartão de crédito');
-    let cartaoPagoViaFinanciamento = 0;
-    let cartaoPendente = 0;
-    allCartaoExpenses.forEach(e => {
-      getInstallmentSchedule(e).forEach(p => {
-        if (p.paid) cartaoPagoViaFinanciamento += p.value;
-        else cartaoPendente += p.value;
-      });
-    });
+    const totalCartaoCompras = state.expenses.filter(e => e.method === 'Cartão de crédito').reduce((s, e) => s + e.amount, 0);
+    const totalFaturaPago = state.faturaPayments.reduce((s, f) => s + f.amount, 0);
+    const cartaoPagoViaFinanciamento = Math.min(totalCartaoCompras, totalFaturaPago);
+    const cartaoPendente = Math.round((totalCartaoCompras - cartaoPagoViaFinanciamento) * 100) / 100;
 
     // ---- financiamento ----
     const liberado = state.releases.reduce((s, r) => s + r.amount, 0);
@@ -1410,14 +1298,10 @@
     checkSaldoWarning();
 
     // ---- parcelas do cartão (usado no saldo informativo do financiamento) ----
-    const todayStr = todayISO();
-    const currentMonth = todayStr.slice(0, 7);
-    let totalMes = 0;
-    cartaoExpenses.forEach(e => {
-      getInstallmentSchedule(e).forEach(p => {
-        if (!p.paid && p.dueDate.slice(0, 7) === currentMonth) totalMes += p.value;
-      });
-    });
+    const currentMonth = todayISO().slice(0, 7);
+    const dueThisMonth = totalDueForMonth(currentMonth);
+    const registradoThisMonth = state.faturaPayments.filter(f => f.month === currentMonth).reduce((s, f) => s + f.amount, 0);
+    const totalMes = Math.max(0, Math.round((dueThisMonth - registradoThisMonth) * 100) / 100);
 
     const wrapEl = $('saldoAposParcelasWrap');
     if (totalMes > 0) {
@@ -1425,6 +1309,47 @@
       $('parcelasDoMes').textContent = fmt(totalMes);
     } else {
       wrapEl.style.display = 'none';
+    }
+
+    // ---- pagamentos de fatura registrados ----
+    const fpListWrap = $('faturaPaymentsListWrap');
+    const fpList = $('faturaPaymentsList');
+    if (state.faturaPayments.length === 0) {
+      fpListWrap.style.display = 'none';
+    } else {
+      fpListWrap.style.display = 'block';
+      const sortedPayments = state.faturaPayments.slice().sort((a, b) => b.month.localeCompare(a.month));
+      fpList.innerHTML = sortedPayments.map(f => {
+        const [y, m] = f.month.split('-');
+        const label = new Date(Number(y), Number(m) - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        return `<div class="mini-row" data-fprow="${f.id}" style="cursor:pointer;">
+          <div class="mini-left"><div class="mini-name" style="text-transform:capitalize;">${label}</div></div>
+          <div style="display:flex; align-items:center;">
+            <span class="mini-amt num">${fmt(f.amount)}</span>
+            <button class="mini-del" data-fpid="${f.id}" title="Remover">×</button>
+          </div>
+        </div>`;
+      }).join('');
+      fpList.querySelectorAll('[data-fprow]').forEach(row => {
+        row.addEventListener('click', (ev) => {
+          if (ev.target.closest('.mini-del')) return;
+          const f = state.faturaPayments.find(x => String(x.id) === row.dataset.fprow);
+          if (f) {
+            $('faturaMonthInput').value = f.month;
+            $('faturaAmountInput').value = fmtNum(f.amount);
+          }
+        });
+      });
+      fpList.querySelectorAll('.mini-del').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const f = state.faturaPayments.find(x => String(x.id) === btn.dataset.fpid);
+          if (!confirm(`Remover o pagamento de fatura de ${f ? f.month : ''} (${f ? fmt(f.amount) : ''})?`)) return;
+          state.faturaPayments = state.faturaPayments.filter(x => String(x.id) !== btn.dataset.fpid);
+          save();
+          render();
+        });
+      });
     }
 
     // ---- category breakdown ----
@@ -1474,11 +1399,7 @@
         const d = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('pt-BR') : '';
         const stripeColor = e.origin === 'financiamento' ? 'var(--caixa)' : 'var(--tarp)';
         const isParcelado = e.method === 'Cartão de crédito' && e.installments > 1;
-        let schedule = [], paidCount = 0;
-        if (isParcelado) {
-          schedule = getInstallmentSchedule(e);
-          paidCount = schedule.filter(p => p.paid).length;
-        }
+        const schedule = isParcelado ? getInstallmentSchedule(e) : [];
         const originLabel = e.origin === 'financiamento' ? 'Financiamento Caixa' :
           (isParcelado ? `Cartão · ${e.installments}x de ${fmt(e.amount / e.installments)}` : e.method);
         const isOpen = expandedPurchases.has(e.id);
@@ -1486,23 +1407,15 @@
         const installmentsPanel = !isParcelado ? '' : `
           <div style="${isOpen ? '' : 'display:none;'} background:var(--bg); padding:2px 0;">
             ${schedule.map(p => {
-              const isThisMonth = p.dueDate.slice(0, 7) === todayISO().slice(0, 7);
               return `<div class="mini-row" style="padding:6px 12px; align-items:center;">
                 <div class="mini-left">
                   <div class="mini-name" style="font-weight:400; font-size:12.5px;">Parcela ${p.index + 1}/${schedule.length}</div>
                   <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
-                    <span class="mini-date" style="${(!p.paid && isThisMonth) ? 'color:var(--cartao); font-weight:600;' : ''}">Vence em</span>
+                    <span class="mini-date">Vence em</span>
                     <input type="date" value="${p.dueDate}" data-dateexp="${e.id}" data-dateidx="${p.index}" style="font-size:11px; padding:2px 4px; border:1px solid var(--line); background:#fff; color:var(--ink);" />
                   </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span class="num" style="font-size:12px;">R$</span>
-                  <input type="text" inputmode="decimal" value="${fmtNum(p.value)}" data-valexp="${e.id}" data-validx="${p.index}" style="width:72px; font-size:12px; padding:2px 4px; border:1px solid var(--line); background:#fff; color:var(--ink); text-align:right;" />
-                  <label style="display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-soft); cursor:pointer;">
-                    <input type="checkbox" data-payexp="${e.id}" data-payidx="${p.index}" ${p.paid ? 'checked' : ''} style="cursor:pointer;" />
-                    Paga
-                  </label>
-                </div>
+                <span class="mini-amt num">${fmt(p.value)}</span>
               </div>`;
             }).join('')}
           </div>`;
@@ -1517,7 +1430,7 @@
               </div>
               <div class="ledger-meta">
                 <span>${e.category}</span><span>${d}</span><span>${originLabel}</span>
-                ${isParcelado ? `<span data-toggleinst="${e.id}" style="color:var(--cartao); font-weight:600; cursor:pointer;">${isOpen ? '▾' : '▸'} ${paidCount}/${schedule.length} pagas</span>` : ''}
+                ${isParcelado ? `<span data-toggleinst="${e.id}" style="color:var(--cartao); font-weight:600; cursor:pointer;">${isOpen ? '▾' : '▸'} ver parcelas</span>` : ''}
               </div>
             </div>
             <button class="ledger-del" data-id="${e.id}" title="Remover">×</button>
@@ -1542,19 +1455,6 @@
           render();
         });
       });
-      ledgerEl.querySelectorAll('[data-payexp]').forEach(input => {
-        input.addEventListener('click', (ev) => ev.stopPropagation());
-        input.addEventListener('change', () => {
-          const ex = state.expenses.find(x => String(x.id) === input.dataset.payexp);
-          const idx = Number(input.dataset.payidx);
-          if (ex) {
-            if (!Array.isArray(ex.paidInstallments)) ex.paidInstallments = new Array(ex.installments || 1).fill(false);
-            ex.paidInstallments[idx] = input.checked;
-            save();
-            render();
-          }
-        });
-      });
       ledgerEl.querySelectorAll('[data-dateexp]').forEach(input => {
         input.addEventListener('click', (ev) => ev.stopPropagation());
         input.addEventListener('change', () => {
@@ -1573,19 +1473,6 @@
               ex.dueDates[i] = firstOfMonthPlus(newDate.slice(0, 8) + '01', i);
             }
           }
-          save();
-          render();
-        });
-      });
-      ledgerEl.querySelectorAll('[data-valexp]').forEach(input => {
-        input.addEventListener('click', (ev) => ev.stopPropagation());
-        input.addEventListener('change', () => {
-          const ex = state.expenses.find(x => String(x.id) === input.dataset.valexp);
-          const idx = Number(input.dataset.validx);
-          if (!ex) return;
-          const n = ex.installments || 1;
-          if (!Array.isArray(ex.installmentValues)) ex.installmentValues = new Array(n).fill(null);
-          ex.installmentValues[idx] = parseAmount(input.value);
           save();
           render();
         });
