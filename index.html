@@ -517,17 +517,25 @@
       </div>
 
       <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);">
-        <div style="display:flex; gap:8px; align-items:flex-end;">
-          <div style="flex:1;">
-            <label class="field-label">Marcar fatura do mês como paga</label>
+        <label class="field-label">Pagar fatura do cartão com saldo do financiamento</label>
+        <div class="row-2" style="margin-top:4px;">
+          <div>
+            <label class="field-label">Mês</label>
             <input type="month" id="faturaMonthInput" class="f-input" />
           </div>
-          <button type="button" class="btn" id="marcarFaturaBtn" style="width:auto; padding:8px 14px; white-space:nowrap;">Marcar paga</button>
+          <div>
+            <label class="field-label">Valor utilizado do saldo</label>
+            <div class="kpi-currency">
+              <span class="num" style="font-size:14px;">R$</span>
+              <input id="faturaAmountInput" class="edit-inline" style="font-size:14px;" inputmode="decimal" value="0,00" />
+            </div>
+          </div>
         </div>
-        <div id="faturaMonthPreview" style="display:none; justify-content:space-between; font-size:12px; color:var(--cartao); font-weight:600; margin-top:8px;">
-          <span>Parcelas do cartão nesse mês</span>
+        <div id="faturaMonthPreview" style="display:none; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:6px;">
+          <span>Pendente nesse mês</span>
           <span id="faturaMonthValue" class="num">R$ 0</span>
         </div>
+        <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar pagamento da fatura</button>
       </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm">+ Lançar liberação (etapa)</button>
@@ -693,6 +701,7 @@
     $('releaseDate').value = todayISO();
     $('dateInput').value = todayISO();
     $('faturaMonthInput').value = nextPendingMonth();
+    updateFaturaMonthPreview();
     applyCardOrder();
     setupCardReorder();
     collapseResourceCardsOnOpen();
@@ -1151,52 +1160,94 @@
     return earliest || todayISO().slice(0, 7);
   }
 
+  function pendingForMonth(month) {
+    let pending = 0;
+    state.expenses.forEach(e => {
+      if (e.method !== 'Cartão de crédito') return;
+      getInstallmentSchedule(e).forEach(p => {
+        if (!p.paid && p.dueDate.slice(0, 7) === month) pending += p.value;
+      });
+    });
+    return Math.round(pending * 100) / 100;
+  }
+
   function updateFaturaMonthPreview() {
     const month = $('faturaMonthInput').value;
     const previewEl = $('faturaMonthPreview');
     if (!month) { previewEl.style.display = 'none'; return; }
-    let pending = 0;
     let total = 0;
     state.expenses.forEach(e => {
       if (e.method !== 'Cartão de crédito') return;
       getInstallmentSchedule(e).forEach(p => {
-        if (p.dueDate.slice(0, 7) === month) {
-          total += p.value;
-          if (!p.paid) pending += p.value;
-        }
+        if (p.dueDate.slice(0, 7) === month) total += p.value;
       });
     });
+    const pending = pendingForMonth(month);
     if (total > 0) {
       previewEl.style.display = 'flex';
       const allPaid = pending === 0;
-      $('faturaMonthValue').textContent = fmt(total) + (allPaid ? ' (já paga)' : '');
-      previewEl.style.color = allPaid ? 'var(--tarp)' : 'var(--cartao)';
+      $('faturaMonthValue').textContent = fmt(pending) + (allPaid ? ' (já paga)' : '');
+      previewEl.style.color = allPaid ? 'var(--tarp)' : 'var(--ink-soft)';
     } else {
       previewEl.style.display = 'none';
     }
+    $('faturaAmountInput').value = fmtNum(pending);
   }
-  $('faturaMonthInput').addEventListener('input', updateFaturaMonthPreview);
   $('faturaMonthInput').addEventListener('change', updateFaturaMonthPreview);
 
   $('marcarFaturaBtn').addEventListener('click', () => {
     const month = $('faturaMonthInput').value;
     if (!month) return;
-    let count = 0;
+    let amountToApply = parseAmount($('faturaAmountInput').value);
+    if (amountToApply <= 0) {
+      alert('Digite um valor maior que zero.');
+      return;
+    }
+
+    // Apply the entered amount across this month's pending installments, in
+    // order. Whichever installment only gets partially covered has its
+    // value adjusted down to what was actually used (rest stays pending
+    // under a later date, since it's still owed).
+    const targets = [];
     state.expenses.forEach(e => {
       if (e.method !== 'Cartão de crédito') return;
-      const schedule = getInstallmentSchedule(e);
-      schedule.forEach(p => {
-        if (!p.paid && p.dueDate.slice(0, 7) === month) {
-          if (!Array.isArray(e.paidInstallments)) e.paidInstallments = new Array(e.installments || 1).fill(false);
-          e.paidInstallments[p.index] = true;
-          count++;
-        }
+      getInstallmentSchedule(e).forEach(p => {
+        if (!p.paid && p.dueDate.slice(0, 7) === month) targets.push({ e, p });
       });
     });
-    if (count === 0) {
+    targets.sort((a, b) => a.p.dueDate.localeCompare(b.p.dueDate));
+
+    if (targets.length === 0) {
       alert('Nenhuma parcela pendente encontrada para esse mês.');
       return;
     }
+
+    for (const { e, p } of targets) {
+      if (amountToApply <= 0) break;
+      const n = e.installments || 1;
+      if (!Array.isArray(e.paidInstallments)) e.paidInstallments = new Array(n).fill(false);
+      if (!Array.isArray(e.installmentValues)) e.installmentValues = new Array(n).fill(null);
+
+      if (amountToApply >= p.value) {
+        e.paidInstallments[p.index] = true;
+        amountToApply = Math.round((amountToApply - p.value) * 100) / 100;
+      } else {
+        // Partial: only part of this installment is covered by the
+        // financing saldo. That part is marked paid; the rest stays as a
+        // separate entry, still pending — i.e., still counted as recurso
+        // próprio for this same month, not pushed to a later one.
+        const remainder = Math.round((p.value - amountToApply) * 100) / 100;
+        e.installmentValues[p.index] = amountToApply;
+        e.paidInstallments[p.index] = true;
+        e.installments = n + 1;
+        e.paidInstallments.splice(p.index + 1, 0, false);
+        e.installmentValues.splice(p.index + 1, 0, remainder);
+        if (!Array.isArray(e.dueDates)) e.dueDates = new Array(n).fill(null);
+        e.dueDates.splice(p.index + 1, 0, p.dueDate);
+        amountToApply = 0;
+      }
+    }
+
     save();
     $('faturaMonthInput').value = nextPendingMonth();
     render();
