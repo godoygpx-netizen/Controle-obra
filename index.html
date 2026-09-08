@@ -1293,7 +1293,18 @@
         <div class="method-name"><span class="method-dot" style="background:var(--cartao);"></span>Cartão de crédito${cartaoParcelado ? ` <span style="color:var(--ink-soft); font-weight:400;">(${cartaoParcelado} parcelado${cartaoParcelado > 1 ? 's' : ''})</span>` : ''}</div>
         <span class="method-amt num">${fmt(cartaoPendente)}</span>
       </div>
-      ${cartaoPagoViaFinanciamento > 0 ? `<div style="font-size:11px; color:var(--ink-soft); margin-top:4px;">${fmt(cartaoPagoViaFinanciamento)} do cartão já coberto pelas etapas (fatura paga)</div>` : ''}`;
+      ${totalCartaoCompras > 0 ? `
+      <div style="margin-top:10px; padding:8px 10px; background:var(--bg); border-left:3px solid ${cartaoPendente > 0 ? 'var(--brick)' : 'var(--tarp)'};">
+        <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft);">
+          <span>Total já gasto no cartão</span><span class="num">${fmt(totalCartaoCompras)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:2px;">
+          <span>Coberto por fatura paga com etapas</span><span class="num">${fmt(cartaoPagoViaFinanciamento)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; color:${cartaoPendente > 0 ? 'var(--brick)' : 'var(--tarp)'}; margin-top:4px; padding-top:4px; border-top:1px dashed var(--line);">
+          <span>${cartaoPendente > 0 ? 'Ainda não coberto (recurso próprio)' : 'Tudo coberto pelas etapas'}</span><span class="num">${fmt(cartaoPendente)}</span>
+        </div>
+      </div>` : ''}`;
 
     checkSaldoWarning();
 
