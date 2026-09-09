@@ -512,12 +512,6 @@
           <div id="saldoFinanc" class="kpi-value num">R$ 0</div>
         </div>
       </div>
-      <div id="saldoAposParcelasWrap" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);">
-        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--cartao); font-weight:600;">
-          <span>Valor utilizado de recurso próprio</span>
-          <span id="parcelasDoMes" class="num">R$ 0</span>
-        </div>
-      </div>
 
       <button type="button" class="link-btn" id="toggleReleaseForm" style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); display:block; width:100%; text-align:left;">+ Lançar liberação (etapa)</button>
 
@@ -547,27 +541,43 @@
         <div class="field-label" style="margin-bottom:8px;">Liberações registradas</div>
         <div id="releaseList"></div>
       </div>
+      </div>
+    </div>
 
-      <div style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--line);">
-        <label class="field-label">Pagar fatura do cartão com saldo do financiamento</label>
-        <div class="row-2" style="margin-top:4px;">
-          <div>
-            <label class="field-label">Mês</label>
-            <input type="month" id="faturaMonthInput" class="f-input" />
-          </div>
-          <div>
-            <label class="field-label">Valor utilizado do saldo</label>
-            <div class="kpi-currency">
-              <span class="num" style="font-size:14px;">R$</span>
-              <input id="faturaAmountInput" class="edit-inline" style="font-size:14px;" inputmode="decimal" value="0,00" />
-            </div>
+    <!-- FATURAS DO CARTÃO -->
+    <div class="card" style="border-left-color:var(--cartao);" data-cardid="faturas">
+      <div class="card-head collapsible" data-cardtoggle="body-faturas">
+        <span class="card-grip">⠿</span>
+        <div class="card-title"><span class="dot" style="background:var(--cartao);"></span>Faturas do cartão</div>
+        <span class="card-chevron" id="chev-body-faturas">▾</span>
+      </div>
+
+      <div class="card-body" id="body-faturas">
+      <div id="saldoAposParcelasWrap" style="display:none; margin-bottom:12px; padding-bottom:10px; border-bottom:1px dashed var(--line);">
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--cartao); font-weight:600;">
+          <span>Valor utilizado de recurso próprio</span>
+          <span id="parcelasDoMes" class="num">R$ 0</span>
+        </div>
+      </div>
+
+      <label class="field-label">Pagar fatura do cartão com saldo do financiamento</label>
+      <div class="row-2" style="margin-top:4px;">
+        <div>
+          <label class="field-label">Mês</label>
+          <input type="month" id="faturaMonthInput" class="f-input" />
+        </div>
+        <div>
+          <label class="field-label">Valor utilizado do saldo</label>
+          <div class="kpi-currency">
+            <span class="num" style="font-size:14px;">R$</span>
+            <input id="faturaAmountInput" class="edit-inline" style="font-size:14px;" inputmode="decimal" value="0,00" />
           </div>
         </div>
-        <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar / editar pagamento da fatura</button>
-        <div class="mini-list" id="faturaPaymentsListWrap" style="display:none;">
-          <div class="field-label" style="margin-bottom:8px;">Pagamentos de fatura registrados</div>
-          <div id="faturaPaymentsList"></div>
-        </div>
+      </div>
+      <button type="button" class="btn btn-primary" id="marcarFaturaBtn" style="margin-top:8px;">Registrar / editar pagamento da fatura</button>
+      <div class="mini-list" id="faturaPaymentsListWrap" style="display:none;">
+        <div class="field-label" style="margin-bottom:8px;">Pagamentos de fatura registrados</div>
+        <div id="faturaPaymentsList"></div>
       </div>
       </div>
     </div>
@@ -667,7 +677,7 @@
     totalContratado: 0,
     fgtsUsado: 0,
     terrenoPago: 0,
-    cardOrder: ["financ", "proprio", "outras", "totalobra"],
+    cardOrder: ["financ", "faturas", "proprio", "outras", "totalobra"],
     releases: [],   // {id, label, amount, date}
     expenses: [],   // {id, supplier, category, amount, date, origin: 'financiamento'|'proprio', method?: 'Pix'|'Cartão de crédito'}
     faturaPayments: []  // {id, month: 'YYYY-MM', amount} — saldo do financiamento usado pra pagar a fatura do cartão naquele mês
@@ -720,7 +730,7 @@
   // the "Movimentações" section — lançar pagamento + extrato — is what
   // the person sees first, without scrolling past everything else.
   function collapseResourceCardsOnOpen() {
-    ["body-financ", "body-proprio", "body-outras", "body-totalobra"].forEach(id => {
+    ["body-financ", "body-faturas", "body-proprio", "body-outras", "body-totalobra"].forEach(id => {
       const body = document.getElementById(id);
       const chev = document.getElementById('chev-' + id);
       if (body) body.classList.add('hidden');
@@ -734,7 +744,7 @@
     const container = $('cardsContainer');
     const order = Array.isArray(state.cardOrder) && state.cardOrder.length
       ? state.cardOrder
-      : ["financ", "proprio", "outras", "totalobra"];
+      : ["financ", "faturas", "proprio", "outras", "totalobra"];
     order.forEach(id => {
       const el = container.querySelector(`[data-cardid="${id}"]`);
       if (el) container.appendChild(el);
