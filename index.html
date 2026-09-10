@@ -451,7 +451,8 @@
 
     <!-- GASTOS POR MÊS -->
     <div class="card" id="chartCard" style="display:none;">
-      <div class="section-title">Gastos por mês</div>
+      <div class="section-title" style="margin-bottom:2px;">Gastos por mês</div>
+      <div id="monthChartInfo" style="font-size:12.5px; color:var(--ink-soft); min-height:18px; margin-bottom:6px;">Toque numa barra pra ver o valor</div>
       <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
         <div id="monthChartBars" style="display:flex; align-items:flex-end; gap:12px; height:130px; padding:4px 4px 0; min-width:min-content;"></div>
       </div>
@@ -1389,7 +1390,7 @@
         const proprioPx = maxTotal > 0 ? Math.round((proprio / maxTotal) * maxPx) : 0;
         const [y, mm] = m.split('-');
         const monthLabel = new Date(Number(y), Number(mm) - 1, 1).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-        return `<div style="display:flex; flex-direction:column; align-items:center; min-width:34px;" title="${monthLabel}/${y}: ${fmt(total)}">
+        return `<div data-chartmonth="${m}" style="display:flex; flex-direction:column; align-items:center; min-width:34px; cursor:pointer;">
           <div style="display:flex; flex-direction:column; justify-content:flex-end; height:${maxPx}px; width:20px; border-bottom:1px solid var(--line-strong);">
             <div style="height:${proprioPx}px; background:var(--tarp); width:100%;"></div>
             <div style="height:${financPx}px; background:var(--caixa); width:100%;"></div>
@@ -1397,6 +1398,15 @@
           <div style="font-size:9.5px; color:var(--ink-soft); margin-top:4px; text-transform:capitalize; white-space:nowrap;">${monthLabel}/${y.slice(2)}</div>
         </div>`;
       }).join('');
+      $('monthChartBars').querySelectorAll('[data-chartmonth]').forEach(el => {
+        el.addEventListener('click', () => {
+          const m = el.dataset.chartmonth;
+          const { financ, proprio } = byMonthChart[m];
+          const [y, mm] = m.split('-');
+          const label = new Date(Number(y), Number(mm) - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+          $('monthChartInfo').innerHTML = `<span style="text-transform:capitalize; font-weight:600; color:var(--ink);">${label}</span> — total ${fmt(financ + proprio)} <span style="color:var(--ink-soft);">(financ. ${fmt(financ)} · próprio ${fmt(proprio)})</span>`;
+        });
+      });
     }
 
     // ---- category breakdown ----
