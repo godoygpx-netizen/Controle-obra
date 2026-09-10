@@ -449,18 +449,6 @@
       <div id="catRows"></div>
     </div>
 
-    <!-- GASTOS POR MÊS -->
-    <div class="card" id="chartCard" style="display:none;">
-      <div class="section-title">Gastos por mês</div>
-      <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
-        <div id="monthChartBars" style="display:flex; align-items:flex-end; gap:12px; height:130px; padding:4px 4px 0; min-width:min-content;"></div>
-      </div>
-      <div style="display:flex; gap:14px; margin-top:10px; font-size:11px; color:var(--ink-soft);">
-        <span><span style="display:inline-block; width:8px; height:8px; background:var(--caixa); margin-right:4px;"></span>Financiamento</span>
-        <span><span style="display:inline-block; width:8px; height:8px; background:var(--tarp); margin-right:4px;"></span>Recursos próprios</span>
-      </div>
-    </div>
-
     <!-- EXTRATO -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" id="extratoHead">
       <div class="section-title" style="margin-bottom:0; display:flex; align-items:center; gap:6px;">
@@ -470,7 +458,6 @@
       <button type="button" id="downloadBtn" class="link-btn">⬇ Baixar CSV</button>
     </div>
     <div id="extratoBody" style="display:none;">
-      <input type="text" id="searchInput" class="f-input" placeholder="Buscar por fornecedor..." style="margin-bottom:8px;" />
       <div class="filter-row" id="filterRow"></div>
       <div class="ledger" id="ledger"></div>
       <div id="editBar" style="display:none; margin-top:8px;">
@@ -684,7 +671,6 @@
   let selectedOrigin = "financiamento";
   let selectedMethod = "Pix";
   let activeFilter = "Todas";
-  let searchTerm = "";
   let releaseFormOpen = false;
   let editingExpenseId = null;
   let editingReleaseId = null;
@@ -1366,39 +1352,6 @@
       });
     }
 
-    // ---- gastos por mês ----
-    const byMonthChart = {};
-    state.expenses.forEach(e => {
-      const m = (e.date || '').slice(0, 7);
-      if (!m) return;
-      if (!byMonthChart[m]) byMonthChart[m] = { financ: 0, proprio: 0 };
-      byMonthChart[m][e.origin === 'financiamento' ? 'financ' : 'proprio'] += e.amount;
-    });
-    const chartMonths = Object.keys(byMonthChart).sort();
-    const chartCard = $('chartCard');
-    if (chartMonths.length === 0) {
-      chartCard.style.display = 'none';
-    } else {
-      chartCard.style.display = '';
-      const maxTotal = Math.max(...chartMonths.map(m => byMonthChart[m].financ + byMonthChart[m].proprio));
-      const maxPx = 96;
-      $('monthChartBars').innerHTML = chartMonths.map(m => {
-        const { financ, proprio } = byMonthChart[m];
-        const total = financ + proprio;
-        const financPx = maxTotal > 0 ? Math.round((financ / maxTotal) * maxPx) : 0;
-        const proprioPx = maxTotal > 0 ? Math.round((proprio / maxTotal) * maxPx) : 0;
-        const [y, mm] = m.split('-');
-        const monthLabel = new Date(Number(y), Number(mm) - 1, 1).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-        return `<div style="display:flex; flex-direction:column; align-items:center; min-width:34px;" title="${monthLabel}/${y}: ${fmt(total)}">
-          <div style="display:flex; flex-direction:column; justify-content:flex-end; height:${maxPx}px; width:20px; border-bottom:1px solid var(--line-strong);">
-            <div style="height:${proprioPx}px; background:var(--tarp); width:100%;"></div>
-            <div style="height:${financPx}px; background:var(--caixa); width:100%;"></div>
-          </div>
-          <div style="font-size:9.5px; color:var(--ink-soft); margin-top:4px; text-transform:capitalize; white-space:nowrap;">${monthLabel}/${y.slice(2)}</div>
-        </div>`;
-      }).join('');
-    }
-
     // ---- category breakdown ----
     const byCat = {};
     state.expenses.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + e.amount; });
@@ -1435,7 +1388,6 @@
         if (activeFilter === 'Recurso próprio') return e.origin === 'proprio';
         return e.origin === 'proprio' && e.method === activeFilter;
       })
-      .filter(e => !searchTerm || e.supplier.toLowerCase().includes(searchTerm))
       .slice()
       .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
 
@@ -1545,11 +1497,6 @@
 
     updateFaturaMonthPreview();
   }
-
-  $('searchInput').addEventListener('input', () => {
-    searchTerm = $('searchInput').value.trim().toLowerCase();
-    render();
-  });
 
   load();
 })();
