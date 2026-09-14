@@ -356,10 +356,46 @@
     .row-3.full-row { grid-column: 1 / -1; }
   }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyCehQYSdeeqEOFCN1LcCSc3H_p93AG6mDQ",
+    authDomain: "controle-obra-11bcd.firebaseapp.com",
+    projectId: "controle-obra-11bcd",
+    storageBucket: "controle-obra-11bcd.firebasestorage.app",
+    messagingSenderId: "388368220441",
+    appId: "1:388368220441:web:4f45592fb6d917ceef0588"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.firestore().enablePersistence().catch(function(e) { console.warn('Persistência offline não disponível:', e.code); });
+</script>
 </head>
 <body>
 
-<div id="obra-root">
+<div id="authScreen" style="position:fixed; inset:0; background:#EBEDF0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; font-family:'Inter', sans-serif;">
+  <div style="width:100%; max-width:340px; background:#fff; border:1px solid #CCD3DA; padding:24px 20px;">
+    <div style="font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:600; color:#1C2530; margin-bottom:4px;">Controle de Obra</div>
+    <div style="font-size:12.5px; color:#5C6B7A; margin-bottom:18px;">Entre com seu e-mail para acessar seus dados de qualquer aparelho.</div>
+
+    <label style="font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em; color:#5C6B7A; font-weight:600; display:block; margin-bottom:3px;">E-mail</label>
+    <input type="email" id="authEmail" autocomplete="email" style="width:100%; font-size:14px; padding:9px 10px; border:1px solid #1C2530; margin-bottom:10px;" />
+
+    <label style="font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em; color:#5C6B7A; font-weight:600; display:block; margin-bottom:3px;">Senha</label>
+    <input type="password" id="authPassword" autocomplete="current-password" style="width:100%; font-size:14px; padding:9px 10px; border:1px solid #1C2530; margin-bottom:6px;" />
+
+    <div id="authError" style="display:none; font-size:12px; color:#AE4530; margin-bottom:8px;"></div>
+
+    <button type="button" id="authLoginBtn" style="width:100%; font-family:'Space Grotesk', sans-serif; font-size:14px; font-weight:600; background:#1C2530; color:#fff; border:1px solid #1C2530; padding:10px; margin-top:6px; cursor:pointer;">Entrar</button>
+    <button type="button" id="authSignupBtn" style="width:100%; font-family:'Inter', sans-serif; font-size:13px; font-weight:600; background:#fff; color:#1C2530; border:1px solid #1C2530; padding:9px; margin-top:8px; cursor:pointer;">Criar conta nova</button>
+
+    <div id="authLoading" style="display:none; font-size:12px; color:#5C6B7A; margin-top:10px; text-align:center;">Carregando...</div>
+  </div>
+</div>
+
+<div id="obra-root" style="display:none;">
+
 
   <div class="masthead">
     <div class="masthead-tag">Controle de obra</div>
@@ -479,10 +515,14 @@
       </div>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:20px; font-size:11.5px; color:var(--ink-soft);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:8px; font-size:11.5px; color:var(--ink-soft);">
       <span id="backupStatus">Backup automático: —</span>
       <button type="button" id="restoreBtn" class="link-btn">Restaurar backup</button>
       <input type="file" id="restoreFile" accept="application/json" style="display:none;" />
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; font-size:11.5px; color:var(--ink-soft);">
+      <span id="cloudStatus">Nuvem: —</span>
+      <button type="button" id="logoutBtn" class="link-btn" style="color:var(--brick);">Sair da conta</button>
     </div>
 
     </div>
@@ -826,9 +866,31 @@
 
   window.suppressNextCardClick = false;
 
+  let currentUid = null;
+  let cloudSaveTimer = null;
+
+  function updateCloudStatus(text, isError) {
+    const el = document.getElementById('cloudStatus');
+    if (!el) return;
+    el.textContent = 'Nuvem: ' + text;
+    el.style.color = isError ? 'var(--brick)' : 'var(--ink-soft)';
+  }
+
   async function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     catch (e) { console.error("Falha ao salvar", e); }
+
+    // Push to Firestore too, debounced a bit so rapid edits (typing, etc.)
+    // don't fire a cloud write per keystroke.
+    if (currentUid) {
+      updateCloudStatus('salvando...');
+      clearTimeout(cloudSaveTimer);
+      cloudSaveTimer = setTimeout(() => {
+        firebase.firestore().collection('controleObra').doc(currentUid).set(state)
+          .then(() => updateCloudStatus('sincronizado ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })))
+          .catch((e) => { console.error(e); updateCloudStatus('falha ao sincronizar (salvo só no aparelho)', true); });
+      }, 800);
+    }
   }
 
   const BACKUP_KEY = "obra-data-v2-last-backup";
@@ -1561,7 +1623,102 @@
     render();
   });
 
-  load();
+  function traduzErroFirebase(e) {
+    const code = e && e.code;
+    if (code === 'auth/invalid-email') return 'E-mail inválido.';
+    if (code === 'auth/user-not-found') return 'Não achei essa conta. Toque em "Criar conta nova".';
+    if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') return 'Senha incorreta.';
+    if (code === 'auth/email-already-in-use') return 'Já existe uma conta com esse e-mail. Toque em "Entrar".';
+    if (code === 'auth/weak-password') return 'Senha muito fraca (mínimo 6 caracteres).';
+    if (code === 'auth/network-request-failed') return 'Sem conexão com a internet.';
+    return 'Não foi possível entrar. Verifique sua internet e tente de novo.';
+  }
+
+  function showAuthScreen() {
+    $('authScreen').style.display = 'flex';
+    $('obra-root').style.display = 'none';
+  }
+
+  function hideAuthScreen() {
+    $('authScreen').style.display = 'none';
+    $('obra-root').style.display = 'block';
+  }
+
+  async function loadFromCloud(uid) {
+    const db = firebase.firestore();
+    try {
+      const doc = await db.collection('controleObra').doc(uid).get();
+      if (doc.exists) {
+        state = Object.assign(state, doc.data());
+      } else {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) state = Object.assign(state, JSON.parse(raw));
+        } catch (e) {}
+        await db.collection('controleObra').doc(uid).set(state);
+      }
+    } catch (e) {
+      console.error('Falha ao carregar da nuvem, usando dados locais', e);
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) state = Object.assign(state, JSON.parse(raw));
+      } catch (e2) {}
+    }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  $('authLoginBtn').addEventListener('click', async () => {
+    const email = $('authEmail').value.trim();
+    const pass = $('authPassword').value;
+    const errEl = $('authError');
+    errEl.style.display = 'none';
+    if (!email || !pass) { errEl.textContent = 'Preencha e-mail e senha.'; errEl.style.display = 'block'; return; }
+    $('authLoading').style.display = 'block';
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, pass);
+    } catch (e) {
+      errEl.textContent = traduzErroFirebase(e);
+      errEl.style.display = 'block';
+    }
+    $('authLoading').style.display = 'none';
+  });
+
+  $('authSignupBtn').addEventListener('click', async () => {
+    const email = $('authEmail').value.trim();
+    const pass = $('authPassword').value;
+    const errEl = $('authError');
+    errEl.style.display = 'none';
+    if (!email || !pass) { errEl.textContent = 'Preencha e-mail e senha.'; errEl.style.display = 'block'; return; }
+    if (pass.length < 6) { errEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; errEl.style.display = 'block'; return; }
+    $('authLoading').style.display = 'block';
+    try {
+      await firebase.auth().createUserWithEmailAndPassword(email, pass);
+    } catch (e) {
+      errEl.textContent = traduzErroFirebase(e);
+      errEl.style.display = 'block';
+    }
+    $('authLoading').style.display = 'none';
+  });
+
+  $('logoutBtn').addEventListener('click', () => {
+    if (!confirm('Sair da conta? Você vai precisar entrar de novo pra acessar seus dados.')) return;
+    firebase.auth().signOut();
+  });
+
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      currentUid = user.uid;
+      $('authLoading').style.display = 'block';
+      await loadFromCloud(user.uid);
+      $('authLoading').style.display = 'none';
+      hideAuthScreen();
+      updateCloudStatus('conectado');
+      load();
+    } else {
+      currentUid = null;
+      showAuthScreen();
+    }
+  });
 })();
 
 function downloadCSV() {
